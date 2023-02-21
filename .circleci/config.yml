@@ -354,7 +354,7 @@ workflows:
           requires: [scan-frontend]
           filters:
             branches:
-              only: [ main ]
+              only: [main]
       - deploy-infrastructure:
           requires: [test-frontend, scan-frontend]
           filters:
@@ -368,11 +368,11 @@ workflows:
       - configure-cluster:
           requires: [configure-infrastructure, upload-docker]
           branches:
-              only: [main]
+            only: [main]
       - deploy-docker:
           requires: [configure-cluster]
           branches:
-              only: [main]
+            only: [main]
       - deploy-frontend:
           requires: [configure-infrastructure]
           filters:
