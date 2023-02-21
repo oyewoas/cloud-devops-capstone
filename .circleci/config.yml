@@ -85,7 +85,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Ensure Eks network infrastructure exists
+          name: Ensure Eks network exists
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/network.yml \
@@ -110,12 +110,12 @@ jobs:
             aws cloudformation deploy \
               --template-file .circleci/files/nodegroup.yml \
               --tags project=${ENVIRONMENT_NAME} \
-              --stack-name "${ENVIRONMENT_NAME}-eks-nodegroup" \
+              --stack-name "${ENVIRONMENT_NAME}-eks-nodegroup-${CIRCLE_WORKFLOW_ID:0:7}" \
               --region ${AWS_DEFAULT_REGION} \
               --parameter-overrides .circleci/files/parameters/nodegroup.json \
               --capabilities CAPABILITY_NAMED_IAM
       - run:
-          name: Ensure eks management instances exists
+          name: Ensure eks instances exists
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/eks-mgt.yml \
@@ -132,7 +132,7 @@ jobs:
             aws ec2 describe-instances \
               --region "${AWS_DEFAULT_REGION}" \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --filters "Name=tag:Name,Values=${ENVIRONMENT_NAME}-management*" \
+              --filters "Name=tag:Name,Values=${ENVIRONMENT_NAME}-eks-mgt*" \
               --output text >> .circleci/ansible/inventory.txt
             cat .circleci/ansible/inventory.txt
       - run:
