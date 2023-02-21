@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: starwars-directory-deployment
+  labels:
+    app: starwars-directory
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: starwars-directory
+  template:
+    metadata:
+      labels:
+        app: starwars-directory
+    spec:
+      containers:
+        - name: starwars-directory
+          image: oyewoas/starwars-directory
+          ports:
+            - containerPort: 8080

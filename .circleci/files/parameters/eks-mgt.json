@@ -1,0 +1,14 @@
+[
+  {
+    "ParameterKey": "EnvironmentName",
+    "ParameterValue": "starwars-directory"
+  },
+  {
+    "ParameterKey": "SSHKeyName",
+    "ParameterValue": "udacity"
+  },
+  {
+    "ParameterKey": "amiImageId",
+    "ParameterValue": "ami-0767046d1677be5a0"
+  }
+]

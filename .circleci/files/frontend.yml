@@ -1,16 +1,20 @@
 Description: >
-  UdaPeople frontend stack.
+  Starwars Directory frontend stack.
 
 Parameters:
   ID:
     Description: Unique identifier.
+    Type: String
+  EnvironmentName:
+    Description: An Environment Name that will be prefixed to resources
+    Default: starwars-directory
     Type: String
 
 Resources:
   WebsiteBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub "udapeople-${ID}"
+      BucketName: !Sub "${EnvironmentName}-${ID}"
       AccessControl: PublicRead
       WebsiteConfiguration:
         IndexDocument: index.html
