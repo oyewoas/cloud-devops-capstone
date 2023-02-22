@@ -371,12 +371,14 @@ workflows:
               only: [main]
       - configure-cluster:
           requires: [configure-infrastructure, upload-docker]
-          branches:
-            only: [main]
+          filters:
+            branches:
+              only: [main]
       - deploy-docker:
           requires: [configure-cluster]
-          branches:
-            only: [main]
+          filters:
+            branches:
+              only: [main]
       - deploy-frontend:
           requires: [configure-infrastructure]
           filters:
