@@ -86,7 +86,6 @@ jobs:
       - checkout
       - run:
           name: Ensure Eks network exists
-
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/network.yml \
@@ -96,7 +95,6 @@ jobs:
               --tags project=${ENVIRONMENT_NAME}
       - run:
           name: Ensure EKS Cluster exists
-
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/cluster.yml \
@@ -105,7 +103,7 @@ jobs:
               --region ${AWS_DEFAULT_REGION} \
               --parameter-overrides .circleci/files/parameters/cluster.json \
               --capabilities CAPABILITY_NAMED_IAM
-        no_output_timeout: 15m
+          no_output_timeout: 15m
       - run:
           name: Ensure Nodegroup exists
           command: |
