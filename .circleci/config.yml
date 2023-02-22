@@ -360,7 +360,7 @@ workflows:
             branches:
               only: [main]
       - deploy-infrastructure:
-          requires: [test-frontend, scan-frontend]
+          requires: [test-frontend, scan-frontend, upload-docker]
           filters:
             branches:
               only: [main]
@@ -370,7 +370,7 @@ workflows:
             branches:
               only: [main]
       - configure-cluster:
-          requires: [configure-infrastructure, upload-docker]
+          requires: [configure-infrastructure]
           filters:
             branches:
               only: [main]
@@ -380,7 +380,7 @@ workflows:
             branches:
               only: [main]
       - deploy-frontend:
-          requires: [configure-infrastructure]
+          requires: [deploy-docker]
           filters:
             branches:
               only: [main]
