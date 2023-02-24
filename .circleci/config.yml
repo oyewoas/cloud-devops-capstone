@@ -12,9 +12,14 @@ commands:
           when: on_fail
           command: |
             echo "Destroying environment: <<parameters.workflow_id>> "
-            aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-cloudfront
+            aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-cloudfront-<<parameters.workflow_id>>
             aws s3 rm s3://${ENVIRONMENT_NAME}-<<parameters.workflow_id>> --recursive
             aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-frontend-<<parameters.workflow_id>>
+            aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-network-<<parameters.workflow_id>>
+            aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-cluster-<<parameters.workflow_id>>
+            aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-nodegroup-<<parameters.workflow_id>>
+            aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-mgt-<<parameters.workflow_id>>
+
 jobs:
   build-frontend:
     docker:
@@ -131,7 +136,7 @@ jobs:
             aws cloudformation deploy \
               --template-file .cimg/files/eks-mgt.yml \
               --tags project=${ENVIRONMENT_NAME} \
-              --stack-name "${ENVIRONMENT_NAME}-eks-mgt" \
+              --stack-name "${ENVIRONMENT_NAME}-eks-mgt-${CIRCLE_WORKFLOW_ID:0:7}" \
               --region ${AWS_DEFAULT_REGION} \
               --parameter-overrides .cimg/files/parameters/eks-mgt.json
               --output text >> .cimg/outputs/check-deployed.txt
@@ -254,7 +259,7 @@ jobs:
           command: |
             aws cloudformation deploy \
               --template-file .cimg/files/cloudfront.yml \
-              --stack-name ${ENVIRONMENT_NAME}-cloudfront \
+              --stack-name ${ENVIRONMENT_NAME}-cloudfront-${CIRCLE_WORKFLOW_ID:0:7} \
               --region ${AWS_DEFAULT_REGION} \
               --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
               --tags project=${ENVIRONMENT_NAME}
@@ -283,7 +288,12 @@ jobs:
             then
               echo "Remove old stacks and files: ${OldWorkflowID} "
               aws s3 rm "s3://${ENVIRONMENT_NAME}-${OldWorkflowID}" --recursive
+              aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-cloudfront-${OldWorkflowID}
               aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name "${ENVIRONMENT_NAME}-frontend-${OldWorkflowID}"
+              aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-network-${OldWorkflowID}
+              aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-cluster-${OldWorkflowID}
+              aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-nodegroup-${OldWorkflowID}
+              aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-mgt-${OldWorkflowID}
             fi
       - run: yum -y install tar gzip
       - destroy-environment:
@@ -338,6 +348,8 @@ jobs:
           root: ~/
           paths:
             - .cimg/outputs/elb-dns.txt
+      - destroy-environment:
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
   deploy-docker:
     docker:
       - image: python:3.7-alpine3.11
@@ -357,6 +369,8 @@ jobs:
             cd .cimg/ansible
             ansible-playbook -i inventory.txt deploy.yml
           no_output_timeout: 2m
+      - destroy-environment:
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
 workflows:
   default:
     jobs:
