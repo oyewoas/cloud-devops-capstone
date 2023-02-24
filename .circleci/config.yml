@@ -56,7 +56,7 @@ jobs:
           name: Scan front-end dependencies
           command: |
             npm install
-            npm audit fix --force
+            npm audit fix
             npm audit --audit-level=critical
   lint-frontend:
     docker:
