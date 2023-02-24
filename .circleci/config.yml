@@ -18,7 +18,7 @@ commands:
 jobs:
   build-frontend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: cimg/node:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -34,7 +34,7 @@ jobs:
 
   test-frontend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: cimg/node:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -47,7 +47,7 @@ jobs:
 
   scan-frontend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: cimg/node:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -59,7 +59,7 @@ jobs:
             npm audit fix --force
   lint-frontend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: cimg/node:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -71,7 +71,7 @@ jobs:
             npm run lint
   upload-docker:
     docker:
-      - image: circleci/node:13.8.0
+      - image: cimg/node:13.8.0
     working_directory: ~/repo
     steps:
       - checkout
@@ -98,60 +98,60 @@ jobs:
           name: Ensure Eks network exists
           command: |
             aws cloudformation deploy \
-              --template-file .circleci/files/network.yml \
+              --template-file .cimg/files/network.yml \
               --stack-name "${ENVIRONMENT_NAME}-eks-network-${CIRCLE_WORKFLOW_ID:0:7}" \
               --region ${AWS_DEFAULT_REGION} \
-              --parameter-overrides .circleci/files/parameters/network.json  \
+              --parameter-overrides .cimg/files/parameters/network.json  \
               --tags project=${ENVIRONMENT_NAME}
       - run:
           name: Ensure EKS Cluster exists
           command: |
             aws cloudformation deploy \
-              --template-file .circleci/files/cluster.yml \
+              --template-file .cimg/files/cluster.yml \
               --tags project=${ENVIRONMENT_NAME} \
               --stack-name "${ENVIRONMENT_NAME}-eks-cluster-${CIRCLE_WORKFLOW_ID:0:7}" \
               --region ${AWS_DEFAULT_REGION} \
-              --parameter-overrides .circleci/files/parameters/cluster.json \
+              --parameter-overrides .cimg/files/parameters/cluster.json \
               --capabilities CAPABILITY_NAMED_IAM
           no_output_timeout: 15m
       - run:
           name: Ensure Nodegroup exists
           command: |
             aws cloudformation deploy \
-              --template-file .circleci/files/nodegroup.yml \
+              --template-file .cimg/files/nodegroup.yml \
               --tags project=${ENVIRONMENT_NAME} \
               --stack-name "${ENVIRONMENT_NAME}-eks-nodegroup-${CIRCLE_WORKFLOW_ID:0:7}" \
               --region ${AWS_DEFAULT_REGION} \
-              --parameter-overrides .circleci/files/parameters/nodegroup.json \
+              --parameter-overrides .cimg/files/parameters/nodegroup.json \
               --capabilities CAPABILITY_NAMED_IAM
       - run:
           name: Ensure eks instances exists
 
           command: |
             aws cloudformation deploy \
-              --template-file .circleci/files/eks-mgt.yml \
+              --template-file .cimg/files/eks-mgt.yml \
               --tags project=${ENVIRONMENT_NAME} \
               --stack-name "${ENVIRONMENT_NAME}-eks-mgt" \
               --region ${AWS_DEFAULT_REGION} \
-              --parameter-overrides .circleci/files/parameters/eks-mgt.json
-              --output text >> .circleci/outputs/check-deployed.txt
-            cat .circleci/outputs/check-deployed.txt
+              --parameter-overrides .cimg/files/parameters/eks-mgt.json
+              --output text >> .cimg/outputs/check-deployed.txt
+            cat .cimg/outputs/check-deployed.txt
       - run:
           name: Extract the IPs of the all instances for Ansible
           command: |
-            echo [all] > .circleci/ansible/inventory.txt
+            echo [all] > .cimg/ansible/inventory.txt
             aws ec2 describe-instances \
               --region "${AWS_DEFAULT_REGION}" \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:Name,Values=${ENVIRONMENT_NAME}-eks-mgt*" \
-              --output text >> .circleci/ansible/inventory.txt
-            cat .circleci/ansible/inventory.txt
+              --output text >> .cimg/ansible/inventory.txt
+            cat .cimg/ansible/inventory.txt
       - run:
           name: Ensure front-end infrastructure exist
 
           command: |
             aws cloudformation deploy \
-              --template-file .circleci/files/frontend.yml \
+              --template-file .cimg/files/frontend.yml \
               --stack-name "${ENVIRONMENT_NAME}-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --region ${AWS_DEFAULT_REGION} \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
@@ -160,8 +160,8 @@ jobs:
       - persist_to_workspace:
           root: ~/
           paths:
-            - project/.circleci/outputs/check-deployed.txt
-            - project/.circleci/ansible/inventory.txt
+            - project/.cimg/outputs/check-deployed.txt
+            - project/.cimg/ansible/inventory.txt
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
 
@@ -185,14 +185,14 @@ jobs:
           name: Configure server
           
           command: |
-            cd .circleci/ansible
+            cd .cimg/ansible
             ansible-playbook -i inventory.txt configure-server.yml
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
       - persist_to_workspace:
           root: ~/
           paths:
-            - project/.circleci/outputs/
+            - project/.cimg/outputs/
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
 
@@ -253,7 +253,7 @@ jobs:
           name: Update cloudfront distribution
           command: |
             aws cloudformation deploy \
-              --template-file .circleci/files/cloudfront.yml \
+              --template-file .cimg/files/cloudfront.yml \
               --stack-name ${ENVIRONMENT_NAME}-cloudfront \
               --region ${AWS_DEFAULT_REGION} \
               --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
@@ -304,7 +304,7 @@ jobs:
       - run:
           name: Configure server
           command: |
-            cd .circleci/
+            cd .cimg/
             if grep -q "No changes to deploy" outputs/check-deployed.txt
               then
                 cat ansible/inventory.txt
@@ -317,7 +317,7 @@ jobs:
       - run:
           name: Wait for LoadBalancer's domain to become reachable
           command: |
-            cd .circleci/
+            cd .cimg/
             if grep -q "No changes to deploy" outputs/check-deployed.txt
               then
                 cat ansible/inventory.txt
@@ -330,14 +330,14 @@ jobs:
       - run:
           name: Display the LoadBalancer's DNS name
           command: |
-            cd .circleci/
+            cd .cimg/
             cat ansible/inventory.txt
             ansible-playbook -i ansible/inventory.txt persist-elb-dns.yml
             cat outputs/elb-dns.txt
       - persist_to_workspace:
           root: ~/
           paths:
-            - .circleci/outputs/elb-dns.txt
+            - .cimg/outputs/elb-dns.txt
   deploy-docker:
     docker:
       - image: python:3.7-alpine3.11
@@ -354,7 +354,7 @@ jobs:
       - run:
           name: Deploy newest Docker Image
           command: |
-            cd .circleci/ansible
+            cd .cimg/ansible
             ansible-playbook -i inventory.txt deploy.yml
           no_output_timeout: 2m
 workflows:
