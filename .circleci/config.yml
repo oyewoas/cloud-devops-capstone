@@ -106,7 +106,7 @@ jobs:
               --template-file .circleci/files/network.yml \
               --stack-name "${ENVIRONMENT_NAME}-eks-network-${CIRCLE_WORKFLOW_ID:0:7}" \
               --region ${AWS_DEFAULT_REGION} \
-              --parameter-overrides .circleci/files/parameters/network.json  \
+              --parameter-overrides file://./files/parameters/network.json  \
               --tags project=${ENVIRONMENT_NAME}
       - run:
           name: Ensure EKS Cluster exists
@@ -116,7 +116,7 @@ jobs:
               --tags project=${ENVIRONMENT_NAME} \
               --stack-name "${ENVIRONMENT_NAME}-eks-cluster-${CIRCLE_WORKFLOW_ID:0:7}" \
               --region ${AWS_DEFAULT_REGION} \
-              --parameter-overrides .circleci/files/parameters/cluster.json \
+              --parameter-overrides file://./files/parameters/cluster.json \
               --capabilities CAPABILITY_NAMED_IAM
           no_output_timeout: 15m
       - run:
@@ -127,7 +127,7 @@ jobs:
               --tags project=${ENVIRONMENT_NAME} \
               --stack-name "${ENVIRONMENT_NAME}-eks-nodegroup-${CIRCLE_WORKFLOW_ID:0:7}" \
               --region ${AWS_DEFAULT_REGION} \
-              --parameter-overrides .circleci/files/parameters/nodegroup.json \
+              --parameter-overrides file://./files/parameters/nodegroup.json \
               --capabilities CAPABILITY_NAMED_IAM
       - run:
           name: Ensure eks instances exists
@@ -138,7 +138,7 @@ jobs:
               --tags project=${ENVIRONMENT_NAME} \
               --stack-name "${ENVIRONMENT_NAME}-eks-mgt-${CIRCLE_WORKFLOW_ID:0:7}" \
               --region ${AWS_DEFAULT_REGION} \
-              --parameter-overrides .circleci/files/parameters/eks-mgt.json
+              --parameter-overrides file://./files/parameters/eks-mgt.json
               --output text >> .circleci/outputs/check-deployed.txt
             cat .circleci/outputs/check-deployed.txt
       - run:

@@ -1,3 +1,6 @@
 [
-  "EnvironmentName=starwars-directory"
+  {
+    "ParameterKey": "EnvironmentName",
+    "ParameterValue": "starwars-directory"
+  }
 ]
