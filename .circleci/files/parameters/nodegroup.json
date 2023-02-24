@@ -1,22 +1,7 @@
 [
-  {
-    "ParameterKey": "EnvironmentName",
-    "ParameterValue": "starwars-directory"
-  },
-  {
-    "ParameterKey": "MinSize",
-    "ParameterValue": "2"
-  },
-  {
-    "ParameterKey": "MaxSize",
-    "ParameterValue": "6"
-  },
-  {
-    "ParameterKey": "DesiredSize",
-    "ParameterValue": "4"
-  },
-  {
-    "ParameterKey": "KeyPairName",
-    "ParameterValue": "udacity"
-  }
+  "EnvironmentName=starwars-directory",
+  "MinSize=2",
+  "MaxSize=6",
+  "DesiredSize=4",
+  "KeyPairName=udacity"
 ]
