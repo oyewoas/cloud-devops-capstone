@@ -58,6 +58,18 @@ jobs:
             npm install
             npm audit fix --force
             npm audit --audit-level=critical
+  lint-frontend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys: [frontend-build]
+      - run:
+          name: Lint front-end
+          command: |
+            npm install
+            npm run lint
   upload-docker:
     docker:
       - image: circleci/node:13.8.0
@@ -353,6 +365,8 @@ workflows:
       - test-frontend:
           requires: [build-frontend]
       - scan-frontend:
+          requires: [build-frontend]
+      - lint-frontend:
           requires: [build-frontend]
       - upload-docker:
           requires: [scan-frontend]
