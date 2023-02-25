@@ -1,14 +1,15 @@
 version: 2.1
 
 commands:
-  destroy-environment:
-    description: Destroy cloudformation stacks given a workflow ID.
+  check-stack-status:
+    description: Check cloudformation stack stautus given a workflow ID
     parameters:
       workflow_id:
         type: string
     steps:
       - run:
           name: Check stack status
+          when: on_fail
           command: |
             STACK_STATUS1=$(aws cloudformation describe-stacks --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-cloudfront-<<parameters.workflow_id>> --query 'Stacks[].StackStatus' --output text)
             STACK_STATUS2=$(aws cloudformation describe-stacks --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-frontend-<<parameters.workflow_id>> --query 'Stacks[].StackStatus' --output text)
@@ -46,6 +47,14 @@ commands:
               echo "Stack creation failed. Reason: $(aws cloudformation describe-stacks ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-network-<<parameters.workflow_id>> --query 'Stacks[].StackStatusReason' --output text)"
               exit 1
             fi
+  destroy-environment:
+    description: Destroy cloudformation stacks given a workflow ID.
+    parameters:
+      workflow_id:
+        type: string
+    requires:
+      - check-stack-status
+    steps:
       - run:
           name: Destroy environments
           when: on_fail
@@ -67,6 +76,8 @@ commands:
             else
               echo "Bucket ${ENVIRONMENT_NAME}-<<parameters.workflow_id>> not found."
             fi
+          requires:
+            - Check stack status
 jobs:
   build-frontend:
     docker:
@@ -214,6 +225,8 @@ jobs:
           paths:
             - project/.circleci/outputs/check-deployed.txt
             - project/.circleci/ansible/inventory.txt
+      - check-stack-status:
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
 
@@ -235,12 +248,10 @@ jobs:
           fingerprints: ["57:7a:79:4c:fb:b2:59:2f:d3:d1:c4:20:cd:e5:98:46"]
       - run:
           name: Configure server
-          
+
           command: |
             cd .circleci/ansible
             ansible-playbook -i inventory.txt configure-server.yml
-      - destroy-environment:
-          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
       - persist_to_workspace:
           root: ~/
           paths:
@@ -311,6 +322,8 @@ jobs:
               --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
               --tags project=${ENVIRONMENT_NAME}
       - run: yum -y install tar gzip
+      - check-stack-status:
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
 
