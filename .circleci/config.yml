@@ -81,7 +81,6 @@ commands:
             aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-cluster-<<parameters.workflow_id>>
             aws cloudformation wait stack-delete-complete --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-cluster-<<parameters.workflow_id>>
             aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-network-<<parameters.workflow_id>>
-            aws cloudformation wait stack-delete-complete --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-network-<<parameters.workflow_id>>
 
             # Check if bucket exists
             if aws s3api head-bucket --bucket ${ENVIRONMENT_NAME}-<<parameters.workflow_id>> --region ${AWS_DEFAULT_REGION} 2>&1 >/dev/null; then
@@ -259,7 +258,7 @@ jobs:
             pip install awscli
       - add_ssh_keys:
           # For ansible to access ec2 via ssh
-          fingerprints: ["57:7a:79:4c:fb:b2:59:2f:d3:d1:c4:20:cd:e5:98:46"]
+          fingerprints: ["92:83:47:13:2a:39:a7:c7:04:96:94:1b:c3:a7:80:08"]
       - run:
           name: Configure server
 
@@ -369,7 +368,6 @@ jobs:
               aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-cluster-${OldWorkflowID}
               aws cloudformation wait stack-delete-complete --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-cluster-${OldWorkflowID}
               aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-network-${OldWorkflowID}
-              aws cloudformation wait stack-delete-complete --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-network-${OldWorkflowID}
             fi
       - run: yum -y install tar gzip
       - destroy-environment:
