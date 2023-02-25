@@ -52,8 +52,9 @@ commands:
     parameters:
       workflow_id:
         type: string
-    steps:
+    requires:
       - check-stack-status
+    steps:
       - run:
           name: Destroy environments
           when: on_fail
@@ -75,8 +76,6 @@ commands:
             else
               echo "Bucket ${ENVIRONMENT_NAME}-<<parameters.workflow_id>> not found."
             fi
-          requires:
-            - Check stack status
 jobs:
   build-frontend:
     docker:
