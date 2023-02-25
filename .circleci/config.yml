@@ -74,8 +74,11 @@ commands:
             aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-cloudfront-<<parameters.workflow_id>>
             aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-frontend-<<parameters.workflow_id>>
             aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-mgt-<<parameters.workflow_id>>
+            aws cloudformation wait stack-delete-complete --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-mgt-<<parameters.workflow_id>>
             aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-nodegroup-<<parameters.workflow_id>>
+            aws cloudformation wait stack-delete-complete --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-nodegroup-<<parameters.workflow_id>>
             aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-cluster-<<parameters.workflow_id>>
+            aws cloudformation wait stack-delete-complete --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-cluster-<<parameters.workflow_id>>
             aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-network-<<parameters.workflow_id>>
 
             # Check if bucket exists
@@ -356,10 +359,13 @@ jobs:
               aws s3 rm "s3://${ENVIRONMENT_NAME}-${OldWorkflowID}" --recursive
               aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-cloudfront-${OldWorkflowID}
               aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name "${ENVIRONMENT_NAME}-frontend-${OldWorkflowID}"
-              aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-network-${OldWorkflowID}
-              aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-cluster-${OldWorkflowID}
-              aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-nodegroup-${OldWorkflowID}
               aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-mgt-${OldWorkflowID}
+              aws cloudformation wait stack-delete-complete --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-mgt-${OldWorkflowID}
+              aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-nodegroup-${OldWorkflowID}
+              aws cloudformation wait stack-delete-complete --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-nodegroup-${OldWorkflowID}
+              aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-cluster-${OldWorkflowID}
+              aws cloudformation wait stack-delete-complete --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-cluster-${OldWorkflowID}
+              aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-network-${OldWorkflowID}
             fi
       - run: yum -y install tar gzip
       - destroy-environment:
