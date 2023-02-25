@@ -37,7 +37,7 @@ Resources:
   StarwarsDirectoryCluster:
     Type: AWS::EKS::Cluster
     Properties:
-      Version: "1.19"
+      Version: "1.23"
       Name: !Sub ${EnvironmentName}-cluster
       RoleArn: !GetAtt EKSClusterRole.Arn
       ResourcesVpcConfig:
