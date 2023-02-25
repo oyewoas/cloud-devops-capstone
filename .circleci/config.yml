@@ -370,7 +370,6 @@ jobs:
               aws cloudformation wait stack-delete-complete --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-cluster-${OldWorkflowID}
               aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-network-${OldWorkflowID}
               aws cloudformation wait stack-delete-complete --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-network-<<parameters.workflow_id>>
-
             fi
       - run: yum -y install tar gzip
       - destroy-environment:
@@ -381,7 +380,7 @@ jobs:
     steps:
       - checkout
       - add_ssh_keys:
-          fingerprints: ["57:7a:79:4c:fb:b2:59:2f:d3:d1:c4:20:cd:e5:98:46"]
+          fingerprints: ["92:83:47:13:2a:39:a7:c7:04:96:94:1b:c3:a7:80:08"]
       - attach_workspace:
           at: ~/
       - run:
@@ -434,7 +433,7 @@ jobs:
     steps:
       - checkout
       - add_ssh_keys:
-          fingerprints: ["57:7a:79:4c:fb:b2:59:2f:d3:d1:c4:20:cd:e5:98:46"]
+          fingerprints: ["92:83:47:13:2a:39:a7:c7:04:96:94:1b:c3:a7:80:08"]
       - attach_workspace:
           at: ~/
       - run:
