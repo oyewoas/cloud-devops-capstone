@@ -51,7 +51,7 @@ Resources:
 Outputs:
   EksId:
     Description: EKS id
-    Value: !Ref CapstoneProjectCluster
+    Value: !Ref StarwarsDirectoryCluster
     Export:
       Name: !Sub ${EnvironmentName}-EKSCluster
 

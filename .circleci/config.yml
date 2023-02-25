@@ -13,6 +13,12 @@ commands:
           command: |
             echo "Destroying environment: <<parameters.workflow_id>> "
             aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-cloudfront-<<parameters.workflow_id>>
+            aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-frontend-<<parameters.workflow_id>>
+            aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-network-<<parameters.workflow_id>>
+            aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-cluster-<<parameters.workflow_id>>
+            aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-nodegroup-<<parameters.workflow_id>>
+            aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-mgt-<<parameters.workflow_id>>
+
             # Check if bucket exists
             if aws s3api head-bucket --bucket ${ENVIRONMENT_NAME}-<<parameters.workflow_id>> --region ${AWS_DEFAULT_REGION} 2>&1 >/dev/null; then
               echo "Deleting bucket ${ENVIRONMENT_NAME}-<<parameters.workflow_id>>..."
@@ -22,12 +28,6 @@ commands:
             else
               echo "Bucket ${ENVIRONMENT_NAME}-<<parameters.workflow_id>> not found."
             fi
-            aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-frontend-<<parameters.workflow_id>>
-            aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-network-<<parameters.workflow_id>>
-            aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-cluster-<<parameters.workflow_id>>
-            aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-nodegroup-<<parameters.workflow_id>>
-            aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-mgt-<<parameters.workflow_id>>
-
 jobs:
   build-frontend:
     docker:
