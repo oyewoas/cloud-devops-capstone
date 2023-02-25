@@ -52,9 +52,8 @@ commands:
     parameters:
       workflow_id:
         type: string
-    requires:
-      - check-stack-status
     steps:
+      - check-stack-status
       - run:
           name: Destroy environments
           when: on_fail
