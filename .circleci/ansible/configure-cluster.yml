@@ -7,5 +7,5 @@
   vars:
     ENVIRONMENT_NAME: "{{ lookup('env', 'ENVIRONMENT_NAME') }}"
   roles:
-    - starwars-directory-deployment
-    - starwars-directory-server
+    - deploy
+    - configure-server

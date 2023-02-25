@@ -81,6 +81,7 @@ commands:
             aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-cluster-<<parameters.workflow_id>>
             aws cloudformation wait stack-delete-complete --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-cluster-<<parameters.workflow_id>>
             aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-network-<<parameters.workflow_id>>
+            aws cloudformation wait stack-delete-complete --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-network-<<parameters.workflow_id>>
 
             # Check if bucket exists
             if aws s3api head-bucket --bucket ${ENVIRONMENT_NAME}-<<parameters.workflow_id>> --region ${AWS_DEFAULT_REGION} 2>&1 >/dev/null; then
@@ -368,6 +369,8 @@ jobs:
               aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-cluster-${OldWorkflowID}
               aws cloudformation wait stack-delete-complete --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-cluster-${OldWorkflowID}
               aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-network-${OldWorkflowID}
+              aws cloudformation wait stack-delete-complete --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-network-<<parameters.workflow_id>>
+
             fi
       - run: yum -y install tar gzip
       - destroy-environment:
@@ -384,7 +387,8 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update ansible
+            apk add --update curl nodejs npm ansible zip
+            pip install awscli
       - run:
           name: Configure server
           command: |
@@ -436,7 +440,8 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update ansible
+            apk add --update curl nodejs npm ansible zip
+            pip install awscli
       - run:
           name: Deploy newest Docker Image
           command: |
