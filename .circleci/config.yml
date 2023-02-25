@@ -16,7 +16,6 @@ commands:
 
               if [ "$STACK_STATUS1" != "CREATE_COMPLETE" ]; then
                 echo "Stack creation failed. Reason: $(aws cloudformation describe-stacks ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-cloudfront-<<parameters.workflow_id>> --query 'Stacks[].StackStatusReason' --output text)"
-                exit 1
               fi
             fi
 
@@ -25,7 +24,6 @@ commands:
 
               if [ "$STACK_STATUS2" != "CREATE_COMPLETE" ]; then
                 echo "Stack creation failed. Reason: $(aws cloudformation describe-stacks ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-frontend-<<parameters.workflow_id>> --query 'Stacks[].StackStatusReason' --output text)"
-                exit 1
               fi
             fi
 
@@ -34,7 +32,6 @@ commands:
 
               if [ "$STACK_STATUS3" != "CREATE_COMPLETE" ]; then
                 echo "Stack creation failed. Reason: $(aws cloudformation describe-stacks ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-mgt-<<parameters.workflow_id>> --query 'Stacks[].StackStatusReason' --output text)"
-                exit 1
               fi
             fi
 
@@ -43,7 +40,6 @@ commands:
 
               if [ "$STACK_STATUS4" != "CREATE_COMPLETE" ]; then
                 echo "Stack creation failed. Reason: $(aws cloudformation describe-stacks ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-nodegroup-<<parameters.workflow_id>> --query 'Stacks[].StackStatusReason' --output text)"
-                exit 1
               fi
             fi
 
@@ -52,7 +48,6 @@ commands:
 
               if [ "$STACK_STATUS5" != "CREATE_COMPLETE" ]; then
                 echo "Stack creation failed. Reason: $(aws cloudformation describe-stacks ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-cluster-<<parameters.workflow_id>> --query 'Stacks[].StackStatusReason' --output text)"
-                exit 1
               fi
             fi
 
@@ -61,7 +56,6 @@ commands:
 
               if [ "$STACK_STATUS6" != "CREATE_COMPLETE" ]; then
                 echo "Stack creation failed. Reason: $(aws cloudformation describe-stacks ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-network-<<parameters.workflow_id>> --query 'Stacks[].StackStatusReason' --output text)"
-                exit 1
               fi
             fi
   destroy-environment:
