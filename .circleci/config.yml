@@ -1,27 +1,51 @@
 version: 2.1
 
 commands:
-  check-stack-status:
-    description: Check cloudformation stack status given a stackname.
-    parameters:
-      stack_name:
-        type: string
-    steps:
-      - run:
-          name: Check stack status
-          command: |
-            STACK_STATUS=$(aws cloudformation describe-stacks --region ${AWS_DEFAULT_REGION} --stack-name <<parameters.stack_name>> --query 'Stacks[].StackStatus' --output text)
-            if [ "$STACK_STATUS" != "CREATE_COMPLETE" ]; then
-              echo "Stack creation failed. Reason: $(aws cloudformation describe-stacks ${AWS_DEFAULT_REGION} --stack-name <<parameters.stack_name>> --query 'Stacks[].StackStatusReason' --output text)"
-              exit 1
-            fi
-
   destroy-environment:
     description: Destroy cloudformation stacks given a workflow ID.
     parameters:
       workflow_id:
         type: string
     steps:
+      - run:
+          name: Check stack status
+          command: |
+            STACK_STATUS1=$(aws cloudformation describe-stacks --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-cloudfront-<<parameters.workflow_id>> --query 'Stacks[].StackStatus' --output text)
+            STACK_STATUS2=$(aws cloudformation describe-stacks --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-frontend-<<parameters.workflow_id>> --query 'Stacks[].StackStatus' --output text)
+            STACK_STATUS3=$(aws cloudformation describe-stacks --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-mgt-<<parameters.workflow_id>> --query 'Stacks[].StackStatus' --output text)
+            STACK_STATUS4=$(aws cloudformation describe-stacks --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-nodegroup-<<parameters.workflow_id>> --query 'Stacks[].StackStatus' --output text)
+            STACK_STATUS5=$(aws cloudformation describe-stacks --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-cluster-<<parameters.workflow_id>> --query 'Stacks[].StackStatus' --output text)
+            STACK_STATUS6=$(aws cloudformation describe-stacks --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-network-<<parameters.workflow_id>> --query 'Stacks[].StackStatus' --output text)
+
+            if [ "$STACK_STATUS1" != "CREATE_COMPLETE" ]; then
+              echo "Stack creation failed. Reason: $(aws cloudformation describe-stacks ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-cloudfront-<<parameters.workflow_id>> --query 'Stacks[].StackStatusReason' --output text)"
+              exit 1
+            fi
+
+            if [ "$STACK_STATUS2" != "CREATE_COMPLETE" ]; then
+              echo "Stack creation failed. Reason: $(aws cloudformation describe-stacks ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-frontend-<<parameters.workflow_id>> --query 'Stacks[].StackStatusReason' --output text)"
+              exit 1
+            fi
+
+            if [ "$STACK_STATUS3" != "CREATE_COMPLETE" ]; then
+              echo "Stack creation failed. Reason: $(aws cloudformation describe-stacks ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-mgt-<<parameters.workflow_id>> --query 'Stacks[].StackStatusReason' --output text)"
+              exit 1
+            fi
+
+            if [ "$STACK_STATUS4" != "CREATE_COMPLETE" ]; then
+              echo "Stack creation failed. Reason: $(aws cloudformation describe-stacks ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-nodegroup-<<parameters.workflow_id>> --query 'Stacks[].StackStatusReason' --output text)"
+              exit 1
+            fi
+
+            if [ "$STACK_STATUS5" != "CREATE_COMPLETE" ]; then
+              echo "Stack creation failed. Reason: $(aws cloudformation describe-stacks ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-cluster-<<parameters.workflow_id>> --query 'Stacks[].StackStatusReason' --output text)"
+              exit 1
+            fi
+
+            if [ "$STACK_STATUS6" != "CREATE_COMPLETE" ]; then
+              echo "Stack creation failed. Reason: $(aws cloudformation describe-stacks ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-network-<<parameters.workflow_id>> --query 'Stacks[].StackStatusReason' --output text)"
+              exit 1
+            fi
       - run:
           name: Destroy environments
           when: on_fail
@@ -131,8 +155,6 @@ jobs:
               --region ${AWS_DEFAULT_REGION} \
               --parameter-overrides file://.circleci/files/parameters/network.json  \
               --tags project=${ENVIRONMENT_NAME}
-      - check-stack-status:
-          stack_name: "${ENVIRONMENT_NAME}-eks-network-${CIRCLE_WORKFLOW_ID:0:7}"
       - run:
           name: Ensure EKS Cluster exists
           command: |
@@ -144,8 +166,6 @@ jobs:
               --parameter-overrides file://.circleci/files/parameters/cluster.json \
               --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM
           no_output_timeout: 15m
-      - check-stack-status:
-          stack_name: "${ENVIRONMENT_NAME}-eks-cluster-${CIRCLE_WORKFLOW_ID:0:7}"
       - run:
           name: Ensure Nodegroup exists
           command: |
@@ -156,9 +176,6 @@ jobs:
               --region ${AWS_DEFAULT_REGION} \
               --parameter-overrides file://.circleci/files/parameters/eks-nodegroup.json \
               --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM
-          no_output_timeout: 15m
-      - check-stack-status:
-          stack_name: "${ENVIRONMENT_NAME}-eks-nodegroup-${CIRCLE_WORKFLOW_ID:0:7}"   
       - run:
           name: Ensure eks instances exists
 
@@ -171,9 +188,6 @@ jobs:
               --parameter-overrides file://.circleci/files/parameters/eks-mgt.json
               --output text >> .circleci/outputs/check-deployed.txt
             cat .circleci/outputs/check-deployed.txt
-          no_output_timeout: 15m
-      - check-stack-status:
-          stack_name: "${ENVIRONMENT_NAME}-eks-mgt-${CIRCLE_WORKFLOW_ID:0:7}"
       - run:
           name: Extract the IPs of the all instances for Ansible
           command: |
@@ -194,9 +208,6 @@ jobs:
               --region ${AWS_DEFAULT_REGION} \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
               --tags project=${ENVIRONMENT_NAME}
-          no_output_timeout: 15m
-      - check-stack-status:
-          stack_name: "${ENVIRONMENT_NAME}-frontend-${CIRCLE_WORKFLOW_ID:0:7}"
       - run: yum -y install tar gzip
       - persist_to_workspace:
           root: ~/
@@ -299,9 +310,6 @@ jobs:
               --region ${AWS_DEFAULT_REGION} \
               --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
               --tags project=${ENVIRONMENT_NAME}
-          no_output_timeout: 15m
-      - check-stack-status:
-          stack_name: "${ENVIRONMENT_NAME}-cloudfront-${CIRCLE_WORKFLOW_ID:0:7}"
       - run: yum -y install tar gzip
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
