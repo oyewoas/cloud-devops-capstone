@@ -52,9 +52,9 @@ commands:
     parameters:
       workflow_id:
         type: string
-    requires:
-      - check-stack-status
     steps:
+      - check-stack-status:
+          workflow_id: <<parameters.workflow_id>>
       - run:
           name: Destroy environments
           when: on_fail
@@ -223,8 +223,6 @@ jobs:
           paths:
             - project/.circleci/outputs/check-deployed.txt
             - project/.circleci/ansible/inventory.txt
-      - check-stack-status:
-          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
 
@@ -320,8 +318,6 @@ jobs:
               --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
               --tags project=${ENVIRONMENT_NAME}
       - run: yum -y install tar gzip
-      - check-stack-status:
-          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
 
