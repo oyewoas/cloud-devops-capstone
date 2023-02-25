@@ -58,6 +58,7 @@ commands:
                 echo "Stack creation failed. Reason: $(aws cloudformation describe-stacks-events --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-network-<<parameters.workflow_id>> --query 'Stacks[].StackStatusReason' --output text)"
               fi
             fi
+          no_output_timeout: 30m
   destroy-environment:
     description: Destroy cloudformation stacks given a workflow ID.
     parameters:
@@ -91,6 +92,7 @@ commands:
             else
               echo "Bucket ${ENVIRONMENT_NAME}-<<parameters.workflow_id>> not found."
             fi
+          no_output_timeout: 30m
 jobs:
   build-frontend:
     docker:
@@ -210,7 +212,7 @@ jobs:
               --tags project=${ENVIRONMENT_NAME} \
               --stack-name "${ENVIRONMENT_NAME}-eks-mgt-${CIRCLE_WORKFLOW_ID:0:7}" \
               --region ${AWS_DEFAULT_REGION} \
-              --parameter-overrides file://.circleci/files/parameters/eks-mgt.json
+              --parameter-overrides file://.circleci/files/parameters/eks-mgt.json \
               --output text >> .circleci/outputs/check-deployed.txt
             cat .circleci/outputs/check-deployed.txt
       - run:
