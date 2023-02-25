@@ -125,8 +125,7 @@ Resources:
               Ref: AWS::Region
       CidrBlock:
         Ref: PublicSubnet1CIDR
-      VpcId:
-        Ref: VPC
+      VpcId: !Ref VPC
       Tags:
         - Key: Name
           Value: !Sub ${EnvironmentName}-PublicSubnet1
@@ -146,8 +145,7 @@ Resources:
               Ref: AWS::Region
       CidrBlock:
         Ref: PublicSubnet2CIDR
-      VpcId:
-        Ref: VPC
+      VpcId: !Ref VPC
       Tags:
         - Key: Name
           Value: !Sub ${EnvironmentName}-PublicSubnet2

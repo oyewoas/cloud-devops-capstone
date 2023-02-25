@@ -64,8 +64,8 @@ commands:
       workflow_id:
         type: string
     steps:
-      # - check-stack-status:
-      #     workflow_id: <<parameters.workflow_id>>
+      - check-stack-status:
+          workflow_id: <<parameters.workflow_id>>
       - run:
           name: Destroy environments
           when: on_fail
@@ -174,7 +174,7 @@ jobs:
               --stack-name "${ENVIRONMENT_NAME}-eks-network-${CIRCLE_WORKFLOW_ID:0:7}" \
               --region ${AWS_DEFAULT_REGION} \
               --parameter-overrides file://.circleci/files/parameters/network.json  \
-              --tags project=${ENVIRONMENT_NAME} || echo "Stack creation failed. Reason: $(aws cloudformation describe-stacks --stack-name ${ENVIRONMENT_NAME}-eks-network-${CIRCLE_WORKFLOW_ID:0:7} --region ${AWS_DEFAULT_REGION} --query 'Stacks[].StackStatusReason' --output text)"
+              --tags project=${ENVIRONMENT_NAME}
 
       - run:
           name: Ensure EKS Cluster exists
@@ -185,7 +185,7 @@ jobs:
               --stack-name "${ENVIRONMENT_NAME}-eks-cluster-${CIRCLE_WORKFLOW_ID:0:7}" \
               --region ${AWS_DEFAULT_REGION} \
               --parameter-overrides file://.circleci/files/parameters/cluster.json \
-              --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM || echo "Stack creation failed. Reason: $(aws cloudformation describe-stacks --stack-name ${ENVIRONMENT_NAME}-eks-cluster-${CIRCLE_WORKFLOW_ID:0:7} --region ${AWS_DEFAULT_REGION} --query 'Stacks[].StackStatusReason' --output text)"
+              --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM
           no_output_timeout: 15m
       - run:
           name: Ensure Nodegroup exists
@@ -196,7 +196,7 @@ jobs:
               --stack-name "${ENVIRONMENT_NAME}-eks-nodegroup-${CIRCLE_WORKFLOW_ID:0:7}" \
               --region ${AWS_DEFAULT_REGION} \
               --parameter-overrides file://.circleci/files/parameters/eks-nodegroup.json \
-              --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM || echo "Stack creation failed. Reason: $(aws cloudformation describe-stacks --stack-name ${ENVIRONMENT_NAME}-eks-nodegroup-${CIRCLE_WORKFLOW_ID:0:7} --region ${AWS_DEFAULT_REGION} --query 'Stacks[].StackStatusReason' --output text)"
+              --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM
       - run:
           name: Ensure eks instances exists
 
@@ -208,7 +208,7 @@ jobs:
               --region ${AWS_DEFAULT_REGION} \
               --parameter-overrides file://.circleci/files/parameters/eks-mgt.json
               --output text >> .circleci/outputs/check-deployed.txt
-            cat .circleci/outputs/check-deployed.txt || echo "Stack creation failed. Reason: $(aws cloudformation describe-stacks --stack-name ${ENVIRONMENT_NAME}-eks-mgt-${CIRCLE_WORKFLOW_ID:0:7} --region ${AWS_DEFAULT_REGION} --query 'Stacks[].StackStatusReason' --output text)"
+            cat .circleci/outputs/check-deployed.txt
       - run:
           name: Extract the IPs of the all instances for Ansible
           command: |
@@ -228,7 +228,7 @@ jobs:
               --stack-name "${ENVIRONMENT_NAME}-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --region ${AWS_DEFAULT_REGION} \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
-              --tags project=${ENVIRONMENT_NAME} || echo "Stack creation failed. Reason: $(aws cloudformation describe-stacks --stack-name ${ENVIRONMENT_NAME}-frontend-${CIRCLE_WORKFLOW_ID:0:7} --region ${AWS_DEFAULT_REGION} --query 'Stacks[].StackStatusReason' --output text)"
+              --tags project=${ENVIRONMENT_NAME}
       - run: yum -y install tar gzip
       - persist_to_workspace:
           root: ~/
@@ -328,7 +328,7 @@ jobs:
               --stack-name ${ENVIRONMENT_NAME}-cloudfront-${CIRCLE_WORKFLOW_ID:0:7} \
               --region ${AWS_DEFAULT_REGION} \
               --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
-              --tags project=${ENVIRONMENT_NAME} || echo "Stack creation failed. Reason: $(aws cloudformation describe-stacks --stack-name ${ENVIRONMENT_NAME}-cloudfront-${CIRCLE_WORKFLOW_ID:0:7} --region ${AWS_DEFAULT_REGION} --query 'Stacks[].StackStatusReason' --output text)"
+              --tags project=${ENVIRONMENT_NAME}
       - run: yum -y install tar gzip
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
