@@ -398,8 +398,7 @@ jobs:
                 echo "Our management instances are already configured."
               else
                 cat ansible/inventory.txt
-                cd ansible
-                ansible-playbook -i ansible/inventory.txt configure-cluster.yml
+                ansible-playbook -i ansible/inventory.txt ansible/configure-cluster.yml
               fi
       - run:
           name: Wait for LoadBalancer's domain to become reachable
@@ -419,7 +418,7 @@ jobs:
           command: |
             cd .circleci/
             cat ansible/inventory.txt
-            ansible-playbook -i ansible/inventory.txt persist-elb-dns.yml
+            ansible-playbook -i ansible/inventory.txt ansible/persist-elb-dns.yml
             cat outputs/elb-dns.txt
       - persist_to_workspace:
           root: ~/
@@ -445,7 +444,7 @@ jobs:
           name: Deploy newest Docker Image
           command: |
             cd .circleci/ansible
-            ansible-playbook -i inventory.txt deploy.yml
+            ansible-playbook -i inventory.txt deploy-app.yml
           no_output_timeout: 2m
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
