@@ -423,7 +423,7 @@ jobs:
       - persist_to_workspace:
           root: ~/
           paths:
-            - .circleci/outputs/elb-dns.txt
+            - project/.circleci/outputs/elb-dns.txt
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
   deploy-docker:
@@ -445,7 +445,7 @@ jobs:
           command: |
             cd .circleci/ansible
             ansible-playbook -i inventory.txt deploy-app.yml
-          no_output_timeout: 2m
+          no_output_timeout: 10m
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
 workflows:
