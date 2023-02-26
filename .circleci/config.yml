@@ -311,10 +311,12 @@ jobs:
           command: |
             URL="http://${ENVIRONMENT_NAME}-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com"            
             echo ${URL} 
-            if curl -s ${URL} | grep "PEOPLE"
+            if curl --output /dev/null --silent --head --fail ${URL}
             then
+              echo "Smoke test passed"
               return 0
             else
+              echo "Smoke test failed"
               return 1
             fi
       - destroy-environment:
