@@ -3,6 +3,9 @@ Description: >
   Ayooluwa Oyewo Starwars Directory Cluster Network Configuration
 
 Parameters:
+  WorkflowID:
+    Description: Unique identifier.
+    Type: String
   EnvironmentName:
     Description: An environment name that will be prefixed to resources
     Default: starwars-directory
@@ -43,7 +46,7 @@ Resources:
       EnableDnsHostnames: true
       Tags:
         - Key: Name
-          Value: !Sub ${EnvironmentName}-VPC
+          Value: !Sub ${EnvironmentName}-VPC-${WorkflowID}
 
   InternetGateway:
     Type: "AWS::EC2::InternetGateway"
@@ -60,9 +63,9 @@ Resources:
       VpcId: !Ref VPC
       Tags:
         - Key: Name
-          Value: !Sub ${EnvironmentName}-Public-Subnets
+          Value: !Sub ${EnvironmentName}-Public-Subnets-${WorkflowID}
         - Key: Network
-          Value: !Sub ${EnvironmentName}-Public
+          Value: !Sub ${EnvironmentName}-Public-${WorkflowID}
 
   PublicRoute:
     DependsOn: VPCGatewayAttachment
@@ -83,7 +86,7 @@ Resources:
       SubnetId: !Ref PublicSubnet1
       Tags:
         - Key: Name
-          Value: !Sub ${EnvironmentName}-NatGatewayAZ1
+          Value: !Sub ${EnvironmentName}-NatGatewayAZ1-${WorkflowID}
 
   NatGateway2:
     DependsOn:
@@ -96,7 +99,7 @@ Resources:
       SubnetId: !Ref PublicSubnet2
       Tags:
         - Key: Name
-          Value: !Sub ${EnvironmentName}-NatGatewayAZ2
+          Value: !Sub ${EnvironmentName}-NatGatewayAZ2-${WorkflowID}
 
   NatGatewayEIP1:
     DependsOn:
@@ -128,7 +131,7 @@ Resources:
       VpcId: !Ref VPC
       Tags:
         - Key: Name
-          Value: !Sub ${EnvironmentName}-PublicSubnet1
+          Value: !Sub ${EnvironmentName}-PublicSubnet1-${WorkflowID}
         - Key: kubernetes.io/role/elb
           Value: 1
 
@@ -146,7 +149,7 @@ Resources:
       VpcId: !Ref VPC
       Tags:
         - Key: Name
-          Value: !Sub ${EnvironmentName}-PublicSubnet2
+          Value: !Sub ${EnvironmentName}-PublicSubnet2-${WorkflowID}
         - Key: kubernetes.io/role/elb
           Value: 1
 
@@ -178,34 +181,34 @@ Outputs:
     Description: Reference to the EKS-VPC
     Value: !Ref VPC
     Export:
-      Name: !Sub ${EnvironmentName}-VPC
+      Name: !Sub ${EnvironmentName}-VPC-${WorkflowID}
 
   PublicRouteTable:
     Description: Public Routing Table
     Value: !Ref PublicRouteTable
     Export:
-      Name: !Sub ${EnvironmentName}-PUB-RT
+      Name: !Sub ${EnvironmentName}-PUB-RT-${WorkflowID}
 
   SubnetIds:
     Description: Subnets IDs in the VPC
     Value: !Join [ ",", [ !Ref PublicSubnet1, !Ref PublicSubnet2 ] ]
     Export:
-      Name: !Sub ${EnvironmentName}-PUB-NETS
+      Name: !Sub ${EnvironmentName}-PUB-NETS-${WorkflowID}
 
   SecurityGroup:
     Description: Security group for the cluster communication with worker nodes
     Value: !Ref ControlPlaneSecurityGroup
     Export:
-      Name: !Sub ${EnvironmentName}-SCG
+      Name: !Sub ${EnvironmentName}-SCG-${WorkflowID}
 
   PublicSubnet1:
     Description: A reference to the public subnet in the 1st Availability Zone
     Value: !Ref PublicSubnet1
     Export:
-      Name: !Sub ${EnvironmentName}-PUB1-SN
+      Name: !Sub ${EnvironmentName}-PUB1-SN-${WorkflowID}
 
   PublicSubnet2:
     Description: A reference to the public subnet in the 2nd Availability Zone
     Value: !Ref PublicSubnet2
     Export:
-      Name: !Sub ${EnvironmentName}-PUB2-SN
+      Name: !Sub ${EnvironmentName}-PUB2-SN-${WorkflowID}

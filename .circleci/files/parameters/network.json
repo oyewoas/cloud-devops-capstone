@@ -14,5 +14,9 @@
   {
     "ParameterKey": "PublicSubnet2CIDR",
     "ParameterValue": "192.168.64.0/18"
+  },
+  {
+    "ParameterKey": "WorkflowID",
+    "ParameterValue": "${CIRCLE_WORKFLOW_ID:0:7}"
   }
 ]

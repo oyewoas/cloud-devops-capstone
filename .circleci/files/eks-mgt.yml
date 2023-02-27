@@ -1,6 +1,9 @@
 Description: >
   Ayooluwa Oyewo Starwars Directory to create two hosts to manage the EKS-Cluster
 Parameters:
+  WorkflowID:
+    Description: Unique identifier.
+    Type: String
   EnvironmentName:
     Description: An Environment name that will be prefixed to resources
     Default: capstone-project
@@ -18,7 +21,7 @@ Resources:
   InstanceSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupName: !Sub ${EnvironmentName}-management-SG
+      GroupName: !Sub ${EnvironmentName}-management-SG-${WorkflowID}
       GroupDescription: Allow port 22 for management
       SecurityGroupIngress:
         - IpProtocol: tcp
@@ -36,7 +39,7 @@ Resources:
       ImageId: !Ref amiImageId
       Tags:
         - Key: Name
-          Value: !Sub ${EnvironmentName}-management1
+          Value: !Sub ${EnvironmentName}-management1-${WorkflowID}
         - Key: Project
           Value: !Ref EnvironmentName
 
@@ -50,6 +53,6 @@ Resources:
       ImageId: !Ref amiImageId
       Tags:
         - Key: Name
-          Value: !Sub ${EnvironmentName}-management2
+          Value: !Sub ${EnvironmentName}-management2-${WorkflowID}
         - Key: Project
           Value: !Ref EnvironmentName

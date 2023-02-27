@@ -1,6 +1,9 @@
 Description: >
   Ayooluwa Oyewo Starwars Directory nodegroup for the Amazon EKS Cluster
 Parameters:
+  WorkflowID:
+    Description: Unique identifier.
+    Type: String
   EnvironmentName:
     Description: An Environment name that will be prefixed to resources
     Default: starwars-directory
@@ -39,7 +42,7 @@ Resources:
   NodeInstanceRole:
     Type: "AWS::IAM::Role"
     Properties:
-      RoleName: !Sub ${EnvironmentName}-nodegroup-role
+      RoleName: !Sub ${EnvironmentName}-nodegroup-role-${WorkflowID}
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -59,9 +62,9 @@ Resources:
   NodeGroup:
     Type: AWS::EKS::Nodegroup
     Properties:
-      ClusterName: !Sub ${EnvironmentName}-cluster
+      ClusterName: !Sub ${EnvironmentName}-cluster-${WorkflowID}
       NodeRole: !GetAtt NodeInstanceRole.Arn
-      NodegroupName: !Sub ${EnvironmentName}-nodegroup
+      NodegroupName: !Sub ${EnvironmentName}-nodegroup-${WorkflowID}
       ScalingConfig:
         MinSize: !Ref MinSize
         MaxSize: !Ref MaxSize
@@ -70,16 +73,16 @@ Resources:
         Fn::Split:
           - ","
           - Fn::ImportValue:
-              Fn::Sub: ${EnvironmentName}-PUB-NETS
+              Fn::Sub: ${EnvironmentName}-PUB-NETS-${WorkflowID}
 
 Outputs:
   NodeInstanceRole:
     Description: The node instance role
     Value: !GetAtt NodeInstanceRole.Arn
     Export:
-      Name: !Sub ${EnvironmentName}-IR
+      Name: !Sub ${EnvironmentName}-IR-${WorkflowID}
   NodeGroup:
     Description: The node group for EKS
     Value: !Ref NodeGroup
     Export:
-      Name: !Sub ${EnvironmentName}-NG
+      Name: !Sub ${EnvironmentName}-NG-${WorkflowID}

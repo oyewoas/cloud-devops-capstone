@@ -1,6 +1,9 @@
 Description: >
   Ayooluwa Oyewo Starwars Directory Cluster Stack
 Parameters:
+  WorkflowID:
+    Description: Unique identifier.
+    Type: String
   EnvironmentName:
     Description: An Environment Name that will be prefixed to resources
     Default: starwars-directory
@@ -10,7 +13,7 @@ Resources:
   ClusterInstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
-      InstanceProfileName: !Sub ${EnvironmentName}-cluster-profile
+      InstanceProfileName: !Sub ${EnvironmentName}-cluster-profile-${WorkflowID}
       Path: "/"
       Roles:
         - !Ref EKSClusterRole
@@ -18,7 +21,7 @@ Resources:
   EKSClusterRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Sub ${EnvironmentName}-cluster-role
+      RoleName: !Sub ${EnvironmentName}-cluster-role-${WorkflowID}
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -42,21 +45,21 @@ Resources:
       RoleArn: !GetAtt EKSClusterRole.Arn
       ResourcesVpcConfig:
         SecurityGroupIds:
-          - Fn::ImportValue: !Sub ${EnvironmentName}-SCG
+          - Fn::ImportValue: !Sub ${EnvironmentName}-SCG-${WorkflowID}
         SubnetIds:
           Fn::Split:
             - ","
             - Fn::ImportValue:
-                Fn::Sub: ${EnvironmentName}-PUB-NETS
+                Fn::Sub: ${EnvironmentName}-PUB-NETS-${WorkflowID}
 Outputs:
   EksId:
     Description: EKS id
     Value: !Ref StarwarsDirectoryCluster
     Export:
-      Name: !Sub ${EnvironmentName}-EKSCluster
+      Name: !Sub ${EnvironmentName}-EKSCluster-${WorkflowID}
 
   EKSRoleArn:
     Description: Role for accessing and creating aws resources
     Value: !GetAtt EKSClusterRole.Arn
     Export:
-      Name: !Sub ${EnvironmentName}-EKSRole
+      Name: !Sub ${EnvironmentName}-EKSRole-${WorkflowID}
