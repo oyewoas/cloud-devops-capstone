@@ -1,6 +1,6 @@
 ---
 - name: "Persist LoadBalancer's DNS name locally"
-  hosts: all[0]
+  hosts: web[0]
   user: ubuntu
   gather_facts: false
   become: yes

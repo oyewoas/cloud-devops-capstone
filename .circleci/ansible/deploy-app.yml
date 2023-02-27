@@ -1,5 +1,5 @@
 - name: "Deploy latest app"
-  hosts: all[0]
+  hosts: web[0]
   user: ubuntu
   gather_facts: false
   become: yes

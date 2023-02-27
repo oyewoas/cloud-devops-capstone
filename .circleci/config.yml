@@ -219,9 +219,9 @@ jobs:
               --output text >> .circleci/outputs/check-deployed.txt
             cat .circleci/outputs/check-deployed.txt
       - run:
-          name: Extract the IPs of the all instances for Ansible
+          name: Extract the IPs of the web instances for Ansible
           command: |
-            echo [all] >> .circleci/ansible/inventory.txt
+            echo [web] >> .circleci/ansible/inventory.txt
             AWS_INSTANCE_PUBLIC_IP=$(aws ec2 describe-instances \
               --region "${AWS_DEFAULT_REGION}" \
               --filters "Name=tag:Name,Values=${ENVIRONMENT_NAME}-eks-mgt-${CIRCLE_WORKFLOW_ID:0:7}" \
