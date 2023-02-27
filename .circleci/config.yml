@@ -189,7 +189,7 @@ jobs:
               --tags project=${ENVIRONMENT_NAME} \
               --stack-name "${ENVIRONMENT_NAME}-eks-cluster-${CIRCLE_WORKFLOW_ID:0:7}" \
               --region ${AWS_DEFAULT_REGION} \
-              --parameter-overrides 'file://.circleci/files/parameters/cluster.json,WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}"' \
+              --parameter-overrides file://.circleci/files/parameters/cluster.json, WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
               --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM
           no_output_timeout: 15m
       - run:
@@ -200,7 +200,7 @@ jobs:
               --tags project=${ENVIRONMENT_NAME} \
               --stack-name "${ENVIRONMENT_NAME}-eks-nodegroup-${CIRCLE_WORKFLOW_ID:0:7}" \
               --region ${AWS_DEFAULT_REGION} \
-              --parameter-overrides 'file://.circleci/files/parameters/eks-nodegroup.json,WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}"' \
+              --parameter-overrides file://.circleci/files/parameters/eks-nodegroup.json, WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
               --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM
       - run:
           name: Ensure eks instances exists
@@ -211,7 +211,7 @@ jobs:
               --tags project=${ENVIRONMENT_NAME} \
               --stack-name "${ENVIRONMENT_NAME}-eks-mgt-${CIRCLE_WORKFLOW_ID:0:7}" \
               --region ${AWS_DEFAULT_REGION} \
-              --parameter-overrides 'file://.circleci/files/parameters/eks-mgt.json,WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}"' \
+              --parameter-overrides file://.circleci/files/parameters/eks-mgt.json, WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
               --output text >> .circleci/outputs/check-deployed.txt
             cat .circleci/outputs/check-deployed.txt
       - run:
@@ -234,7 +234,7 @@ jobs:
               --template-file .circleci/files/frontend.yml \
               --stack-name "${ENVIRONMENT_NAME}-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --region ${AWS_DEFAULT_REGION} \
-              --parameter-overrides 'file://.circleci/files/parameters/frontend.json,WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}"'  \
+              --parameter-overrides file://.circleci/files/parameters/frontend.json, WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}"  \
               --tags project=${ENVIRONMENT_NAME}
       - run: yum -y install tar gzip
       - persist_to_workspace:
@@ -336,7 +336,7 @@ jobs:
               --template-file .circleci/files/cloudfront.yml \
               --stack-name ${ENVIRONMENT_NAME}-cloudfront-${CIRCLE_WORKFLOW_ID:0:7} \
               --region ${AWS_DEFAULT_REGION} \
-              --parameter-overrides 'file://.circleci/files/parameters/frontend.json,WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}"' \
+              --parameter-overrides file://.circleci/files/parameters/frontend.json, WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
               --tags project=${ENVIRONMENT_NAME}
       - run: yum -y install tar gzip
       - destroy-environment:
