@@ -178,7 +178,7 @@ jobs:
               --template-file .circleci/files/network.yml \
               --stack-name "${ENVIRONMENT_NAME}-eks-network-${CIRCLE_WORKFLOW_ID:0:7}" \
               --region ${AWS_DEFAULT_REGION} \
-              --parameter-overrides 'file://.circleci/files/parameters/network.json WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}"'  \
+              --parameter-overrides file://.circleci/files/parameters/network.json WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}"  \
               --tags project=${ENVIRONMENT_NAME}
 
       - run:
