@@ -217,12 +217,14 @@ jobs:
       - run:
           name: Extract the IPs of the all instances for Ansible
           command: |
-            echo [all] > .circleci/ansible/inventory.txt
-            aws ec2 describe-instances \
+            echo [all] >> .circleci/ansible/inventory.txt
+            AWS_INSTANCE_PUBLIC_IP=$(aws ec2 describe-instances \
               --region "${AWS_DEFAULT_REGION}" \
+              --filters "Name=tag:Name,Values=${ENVIRONMENT_NAME}-eks-mgt-${CIRCLE_WORKFLOW_ID:0:7}" \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --filters "Name=tag:Name,Values=${ENVIRONMENT_NAME}-eks-mgt*" \
-              --output text >> .circleci/ansible/inventory.txt
+              --output text)
+            echo "AWS_BACKEND_PUBLIC_IP = ${AWS_BACKEND_PUBLIC_IP}"
+            echo "$AWS_INSTANCE_PUBLIC_IP" >> .circleci/ansible/inventory.txt
             cat .circleci/ansible/inventory.txt
       - run:
           name: Ensure front-end infrastructure exist

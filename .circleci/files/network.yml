@@ -141,10 +141,8 @@ Resources:
       AvailabilityZone:
         Fn::Select:
           - '1'
-          - Fn::GetAZs:
-              Ref: AWS::Region
-      CidrBlock:
-        Ref: PublicSubnet2CIDR
+          - Fn::GetAZs: !Ref AWS::Region
+      CidrBlock: !Ref PublicSubnet2CIDR
       VpcId: !Ref VPC
       Tags:
         - Key: Name
