@@ -136,7 +136,7 @@ jobs:
             npm audit fix --force
   lint-frontend:
     docker:
-      - image: cimg/node:14.19.3
+      - image: cimg/node:13.8.0
     steps:
       - checkout
       - restore_cache:
