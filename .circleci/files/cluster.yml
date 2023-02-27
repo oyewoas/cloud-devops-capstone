@@ -41,7 +41,7 @@ Resources:
     Type: AWS::EKS::Cluster
     Properties:
       Version: "1.23"
-      Name: !Sub ${EnvironmentName}-cluster
+      Name: !Sub ${EnvironmentName}-cluster-${WorkflowID}
       RoleArn: !GetAtt EKSClusterRole.Arn
       ResourcesVpcConfig:
         SecurityGroupIds:

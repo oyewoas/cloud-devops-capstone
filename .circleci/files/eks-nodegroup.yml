@@ -62,9 +62,9 @@ Resources:
   NodeGroup:
     Type: AWS::EKS::Nodegroup
     Properties:
-      ClusterName: !Sub ${EnvironmentName}-eks-cluster-${WorkflowID}
+      ClusterName: !Sub ${EnvironmentName}-cluster-${WorkflowID}
       NodeRole: !GetAtt NodeInstanceRole.Arn
-      NodegroupName: !Sub ${EnvironmentName}-eks-nodegroup-${WorkflowID}
+      NodegroupName: !Sub ${EnvironmentName}-nodegroup-${WorkflowID}
       ScalingConfig:
         MinSize: !Ref MinSize
         MaxSize: !Ref MaxSize
