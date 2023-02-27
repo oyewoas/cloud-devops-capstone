@@ -18,4 +18,4 @@ spec:
         - name: starwars-directory
           image: oyewoas/starwars-directory
           ports:
-            - containerPort: 8080
+            - containerPort: 80

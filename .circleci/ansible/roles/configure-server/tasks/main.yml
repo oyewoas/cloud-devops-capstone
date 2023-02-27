@@ -1,9 +1,9 @@
 - name: Copy server configuration
   copy:
-    src: "{{ ENVIRONMENT_NAME }}-server.yaml"
+    src: "{{ ENVIRONMENT_NAME }}-server.yml"
     dest: $HOME
 
 - name: Create server configuration
-  command: "./bin/kubectl apply -f {{ ENVIRONMENT_NAME }}-server.yaml"
+  command: "./bin/kubectl apply -f {{ ENVIRONMENT_NAME }}-server.yml"
   args:
     chdir: $HOME
