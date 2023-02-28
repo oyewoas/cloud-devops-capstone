@@ -1,13 +1,9 @@
 - name: "Deploy latest app"
-  hosts: all
+  hosts: web[0]
   user: ubuntu
   gather_facts: false
-  become: true
+  become: yes
   vars:
-    - ansible_python_interpreter: /usr/bin/python3
-    - ansible_host_key_checking: false
-    - ansible_stdout_callback: yaml
-  environment:
     ENVIRONMENT_NAME: "{{ lookup('env', 'ENVIRONMENT_NAME') }}"
     CIRCLE_WORKFLOW_ID: "{{ lookup('env', 'CIRCLE_WORKFLOW_ID') }}"
   tasks:
