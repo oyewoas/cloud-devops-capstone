@@ -2,6 +2,8 @@
   hosts: all
   user: ubuntu
   gather_facts: false
+  become_method: sudo
+  become_user: root
   become: yes
   vars:
     ENVIRONMENT_NAME: "{{ lookup('env', 'ENVIRONMENT_NAME') }}"
