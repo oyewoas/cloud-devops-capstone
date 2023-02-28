@@ -256,6 +256,9 @@ jobs:
       - image: python:3.7-alpine3.11
     steps:
       - checkout
+      - add_ssh_keys:
+          fingerprints: 
+            - "92:83:47:13:2a:39:a7:c7:04:96:94:1b:c3:a7:80:08"
       - attach_workspace:
           at: ~/
       - run:
@@ -264,9 +267,6 @@ jobs:
           command: |
             apk add --update curl nodejs npm ansible zip
             pip install awscli
-      - add_ssh_keys:
-          # For ansible to access ec2 via ssh
-          fingerprints: ["92:83:47:13:2a:39:a7:c7:04:96:94:1b:c3:a7:80:08"]
       - run:
           name: Configure server
 
@@ -385,6 +385,9 @@ jobs:
       - image: python:3.7-alpine3.11
     steps:
       - checkout
+      - add_ssh_keys:
+          fingerprints: 
+            - "92:83:47:13:2a:39:a7:c7:04:96:94:1b:c3:a7:80:08"
       - attach_workspace:
           at: ~/
       - run:
@@ -392,9 +395,6 @@ jobs:
           command: |
             apk add --update curl nodejs npm ansible zip
             pip install awscli
-      - add_ssh_keys:
-          # For ansible to access ec2 via ssh
-          fingerprints: ["92:83:47:13:2a:39:a7:c7:04:96:94:1b:c3:a7:80:08"]
       - run:
           name: Configure server
           command: |
@@ -440,6 +440,9 @@ jobs:
       - image: python:3.7-alpine3.11
     steps:
       - checkout
+      - add_ssh_keys:
+          fingerprints: 
+            - "92:83:47:13:2a:39:a7:c7:04:96:94:1b:c3:a7:80:08"
       - attach_workspace:
           at: ~/
       - run:
@@ -447,9 +450,6 @@ jobs:
           command: |
             apk add --update curl nodejs npm ansible zip
             pip install awscli
-      - add_ssh_keys:
-          # For ansible to access ec2 via ssh
-          fingerprints: ["92:83:47:13:2a:39:a7:c7:04:96:94:1b:c3:a7:80:08"]
       - run:
           name: Deploy newest Docker Image
           command: |
