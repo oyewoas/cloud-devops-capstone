@@ -37,16 +37,30 @@ Resources:
           ToPort: 443
           CidrIp: 0.0.0.0/0
 
-  ManagementInstance:
+  ManagementInstance1:
     Type: AWS::EC2::Instance
     Properties:
       InstanceType: t2.micro
       SecurityGroups:
         - Ref: InstanceSecurityGroup
-      KeyName: udacity
-      ImageId: ami-0dfcb1ef8550277af
+      KeyName: !Ref SSHKeyName
+      ImageId: !Ref amiImageId
       Tags:
         - Key: Name
-          Value: !Sub ${EnvironmentName}-mgt-${WorkflowID}
+          Value: !Sub ${EnvironmentName}-mgt1-${WorkflowID}
+        - Key: Project
+          Value: !Ref EnvironmentName
+
+  ManagementInstance2:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t2.micro
+      SecurityGroups:
+        - Ref: InstanceSecurityGroup
+      KeyName: !Ref SSHKeyName
+      ImageId: !Ref amiImageId
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName}-mgt2-${WorkflowID}
         - Key: Project
           Value: !Ref EnvironmentName
