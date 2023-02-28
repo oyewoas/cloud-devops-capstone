@@ -7,9 +7,9 @@
   become_user: root
   become: yes
   pre_tasks:
-    - name: "Install 'unzip'"
+    - name: "Install zip utility."
       apt:
-        name: [ "unzip" ]
+        name: [ "zip", "unzip" ]
         state: latest
         update_cache: yes
 
