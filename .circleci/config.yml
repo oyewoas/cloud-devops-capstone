@@ -223,7 +223,7 @@ jobs:
           command: |
             AWS_INSTANCE_PUBLIC_IP=$(aws ec2 describe-instances \
               --region "${AWS_DEFAULT_REGION}" \
-              --filters "Name=tag:Name,Values=eks-mgt-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --filters "Name=tag:Name,Values=${ENVIRONMENT_NAME}-mgt*" \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --output text)
             echo "AWS_INSTANCE_PUBLIC_IP = ${AWS_INSTANCE_PUBLIC_IP}"

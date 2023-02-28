@@ -39,7 +39,7 @@ Resources:
       ImageId: !Ref amiImageId
       Tags:
         - Key: Name
-          Value: !Sub ${EnvironmentName}-management1-${WorkflowID}
+          Value: !Sub ${EnvironmentName}-mgt1-${WorkflowID}
         - Key: Project
           Value: !Ref EnvironmentName
 
@@ -53,6 +53,6 @@ Resources:
       ImageId: !Ref amiImageId
       Tags:
         - Key: Name
-          Value: !Sub ${EnvironmentName}-management2-${WorkflowID}
+          Value: !Sub ${EnvironmentName}-mgt2-${WorkflowID}
         - Key: Project
           Value: !Ref EnvironmentName
