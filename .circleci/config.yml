@@ -227,7 +227,7 @@ jobs:
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --output text)
             echo "AWS_INSTANCE_PUBLIC_IP = ${AWS_INSTANCE_PUBLIC_IP}"
-            echo "[web]" >> .circleci/ansible/inventory.txt
+            echo "[all]" >> .circleci/ansible/inventory.txt
             echo "$AWS_INSTANCE_PUBLIC_IP" >> .circleci/ansible/inventory.txt
 
             cat .circleci/ansible/inventory.txt
