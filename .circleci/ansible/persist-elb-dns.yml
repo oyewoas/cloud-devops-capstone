@@ -1,10 +1,14 @@
 ---
 - name: "Persist LoadBalancer's DNS name locally"
-  hosts: web[0]
+  hosts: all
   user: ubuntu
   gather_facts: false
-  become: yes
+  become: true
   vars:
+    - ansible_python_interpreter: /usr/bin/python3
+    - ansible_host_key_checking: false
+    - ansible_stdout_callback: yaml
+  environment:
     ENVIRONMENT_NAME: "{{ lookup('env', 'ENVIRONMENT_NAME') }}"
   tasks:
     - name: Get the LoadBalancer's DNS name

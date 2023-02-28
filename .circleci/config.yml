@@ -221,14 +221,15 @@ jobs:
       - run:
           name: Extract the IPs of the web instances for Ansible
           command: |
-            echo [web] >> .circleci/ansible/inventory.txt
             AWS_INSTANCE_PUBLIC_IP=$(aws ec2 describe-instances \
               --region "${AWS_DEFAULT_REGION}" \
-              --filters "Name=tag:Name,Values=${ENVIRONMENT_NAME}-eks-mgt-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --filters "Name=tag:Name,Values=eks-mgt-${CIRCLE_WORKFLOW_ID:0:7}" \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --output text)
             echo "AWS_INSTANCE_PUBLIC_IP = ${AWS_INSTANCE_PUBLIC_IP}"
+            echo "[all]" >> .circleci/ansible/inventory.txt
             echo "$AWS_INSTANCE_PUBLIC_IP" >> .circleci/ansible/inventory.txt
+
             cat .circleci/ansible/inventory.txt
       - run:
           name: Ensure front-end infrastructure exist
@@ -433,6 +434,8 @@ jobs:
           root: ~/
           paths:
             - project/.circleci/outputs/elb-dns.txt
+            - project/.circleci/outputs/check-deployed.txt
+            - project/.circleci/ansible/inventory.txt
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
   deploy-docker:
