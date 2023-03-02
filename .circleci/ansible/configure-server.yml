@@ -6,7 +6,7 @@
   become: yes
   pre_tasks:
     - name: Add SSH host key to known_hosts
-       known_hosts:
+      known_hosts:
         name: "{{ inventory_hostname }}"
         key: "{{ hostvars[inventory_hostname]['ansible_host_key'][0]['key'] }}"
     - name: "update apt packages."
