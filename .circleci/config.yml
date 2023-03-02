@@ -27,11 +27,11 @@ commands:
               fi
             fi
 
-            if aws cloudformation describe-stacks --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-mgt-<<parameters.workflow_id>> >/dev/null 2>&1; then
-              STACK_STATUS3=$(aws cloudformation describe-stacks --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-mgt-<<parameters.workflow_id>> --query 'Stacks[].StackStatus' --output text)
+            if aws cloudformation describe-stacks --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-ec2-<<parameters.workflow_id>> >/dev/null 2>&1; then
+              STACK_STATUS3=$(aws cloudformation describe-stacks --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-ec2-<<parameters.workflow_id>> --query 'Stacks[].StackStatus' --output text)
 
               if [ "$STACK_STATUS3" != "CREATE_COMPLETE" ]; then
-                echo "Stack creation failed. Reason: $(aws cloudformation describe-stack-events --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-mgt-<<parameters.workflow_id>> --query 'Stacks[].StackStatusReason' --output text)"
+                echo "Stack creation failed. Reason: $(aws cloudformation describe-stack-events --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-ec2-<<parameters.workflow_id>> --query 'Stacks[].StackStatusReason' --output text)"
               fi
             fi
 
@@ -72,25 +72,14 @@ commands:
           when: on_fail
           command: |
             echo "Destroying environment: <<parameters.workflow_id>> "
-            aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-cloudfront-<<parameters.workflow_id>>
-            aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-mgt-<<parameters.workflow_id>>
-            aws cloudformation wait stack-delete-complete --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-mgt-<<parameters.workflow_id>>
+            aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-ec2-<<parameters.workflow_id>>
+            aws cloudformation wait stack-delete-complete --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-ec2-<<parameters.workflow_id>>
             aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-nodegroup-<<parameters.workflow_id>>
             aws cloudformation wait stack-delete-complete --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-nodegroup-<<parameters.workflow_id>>
             aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-cluster-<<parameters.workflow_id>>
             aws cloudformation wait stack-delete-complete --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-cluster-<<parameters.workflow_id>>
             aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-network-<<parameters.workflow_id>>
             aws cloudformation wait stack-delete-complete --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-network-<<parameters.workflow_id>>
-            # Check if bucket exists
-            if aws s3api head-bucket --bucket ${ENVIRONMENT_NAME}-<<parameters.workflow_id>> --region ${AWS_DEFAULT_REGION} 2>&1 >/dev/null; then
-              echo "Deleting bucket ${ENVIRONMENT_NAME}-<<parameters.workflow_id>>..."
-              aws s3 rm s3://${ENVIRONMENT_NAME}-<<parameters.workflow_id>> --recursive --region ${AWS_DEFAULT_REGION}
-              aws s3api delete-bucket --bucket ${ENVIRONMENT_NAME}-<<parameters.workflow_id>> --region ${AWS_DEFAULT_REGION}
-              echo "Bucket ${ENVIRONMENT_NAME}-<<parameters.workflow_id>> deleted."
-            else
-              echo "Bucket ${ENVIRONMENT_NAME}-<<parameters.workflow_id>> not found."
-            fi
-            aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-frontend-<<parameters.workflow_id>>
           no_output_timeout: 30m
 jobs:
   build-frontend:
@@ -149,7 +138,6 @@ jobs:
   upload-docker:
     docker:
       - image: cimg/node:13.8.0
-    working_directory: ~/repo
     steps:
       - checkout
       - setup_remote_docker
@@ -186,11 +174,11 @@ jobs:
           name: Ensure EKS Cluster exists
           command: |
             aws cloudformation deploy \
-              --template-file .circleci/files/cluster.yml \
+              --template-file .circleci/files/eks-cluster.yml \
               --tags project=${ENVIRONMENT_NAME} \
               --stack-name "${ENVIRONMENT_NAME}-eks-cluster-${CIRCLE_WORKFLOW_ID:0:7}" \
               --region ${AWS_DEFAULT_REGION} \
-              --parameter-overrides file://.circleci/files/parameters/cluster.json \
+              --parameter-overrides file://.circleci/files/parameters/eks-cluster.json \
               --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
               --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM
           no_output_timeout: 15m
@@ -210,11 +198,11 @@ jobs:
 
           command: |
             aws cloudformation deploy \
-              --template-file .circleci/files/eks-mgt.yml \
+              --template-file .circleci/files/eks-ec2.yml \
               --tags project=${ENVIRONMENT_NAME} \
-              --stack-name "${ENVIRONMENT_NAME}-eks-mgt-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --stack-name "${ENVIRONMENT_NAME}-eks-ec2-${CIRCLE_WORKFLOW_ID:0:7}" \
               --region ${AWS_DEFAULT_REGION} \
-              --parameter-overrides file://.circleci/files/parameters/eks-mgt.json \
+              --parameter-overrides file://.circleci/files/parameters/eks-ec2.json \
               --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
               --output text >> .circleci/outputs/check-deployed.txt
             cat .circleci/outputs/check-deployed.txt
@@ -231,17 +219,6 @@ jobs:
             echo "$AWS_INSTANCE_PUBLIC_IP" >> .circleci/ansible/inventory.txt
 
             cat .circleci/ansible/inventory.txt
-      - run:
-          name: Ensure front-end infrastructure exist
-
-          command: |
-            aws cloudformation deploy \
-              --template-file .circleci/files/frontend.yml \
-              --stack-name "${ENVIRONMENT_NAME}-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --region ${AWS_DEFAULT_REGION} \
-              --parameter-overrides file://.circleci/files/parameters/frontend.json \
-              --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
-              --tags project=${ENVIRONMENT_NAME}
       - run: yum -y install tar gzip
       - persist_to_workspace:
           root: ~/
@@ -271,115 +248,18 @@ jobs:
           name: Configure server
 
           command: |
-            cd .circleci/ansible
-            ansible-playbook -i inventory.txt configure-server.yml
+            cd .circleci/
+            if grep -q "No changes to deploy" outputs/check-deployed.txt
+              then
+                cat ansible/inventory.txt
+                echo "Our instances are already configured."
+              else
+                cat ansible/inventory.txt
+                ansible-playbook -i ansible/inventory.txt ansible/configure-server.yml
+              fi
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
-
-  deploy-frontend:
-    docker:
-      - image: python:3.7-alpine3.11
-    steps:
-      - checkout
-      - attach_workspace:
-          at: ~/
-      - run:
-          name: Install dependencies
-          command: |
-            apk add --update curl nodejs npm
-            pip install awscli
-      - run:
-          name: Deploy frontend objects
-          command: |
-            npm install
-            npm run build
-            tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
-            aws s3 cp dist s3://${ENVIRONMENT_NAME}-${CIRCLE_WORKFLOW_ID:0:7} --recursive
-      - destroy-environment:
-          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
-
-  smoke-test:
-    docker:
-      - image: python:3.7-alpine3.11
-    steps:
-      - checkout
-      - attach_workspace:
-          at: ~/
-      - run:
-          name: Install dependencies
-          command: |
-            apk add --update curl nodejs npm ansible zip
-            pip install awscli
-      - run:
-          name: Frontend smoke test.
-          command: |
-            URL="http://${ENVIRONMENT_NAME}-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com"            
-            echo ${URL} 
-            if curl --output /dev/null --silent --head --fail ${URL}
-            then
-              echo "Smoke test passed"
-              return 0
-            else
-              echo "Smoke test failed"
-              return 1
-            fi
-      - destroy-environment:
-          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
-
-  cloudfront-update:
-    docker:
-      - image: amazon/aws-cli
-    steps:
-      - checkout
-      - run:
-          name: Update cloudfront distribution
-          command: |
-            aws cloudformation deploy \
-              --template-file .circleci/files/cloudfront.yml \
-              --stack-name ${ENVIRONMENT_NAME}-cloudfront-${CIRCLE_WORKFLOW_ID:0:7} \
-              --region ${AWS_DEFAULT_REGION} \
-              --parameter-overrides file://.circleci/files/parameters/frontend.json \
-              --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
-              --tags project=${ENVIRONMENT_NAME}
-      - run: yum -y install tar gzip
-      - destroy-environment:
-          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
-
-  cleanup:
-    docker:
-      - image: amazon/aws-cli
-    steps:
-      - checkout
-      - run:
-          name: Get old stack workflow id
-          command: |
-            export OldWorkflowID=$(aws cloudformation \
-                    list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
-                    --no-paginate --output text)
-            echo OldWorkflowID: "${OldWorkflowID}"
-            echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
-            # Fetch the stack names          
-            export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
-                    --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
-            echo Stack names: "${STACKS[@]}"
-            if [[ "${CIRCLE_WORKFLOW_ID:0:7}" != "${OldWorkflowID}" ]]
-            then
-              echo "Remove old stacks and files: ${OldWorkflowID} "
-              aws s3 rm "s3://${ENVIRONMENT_NAME}-${OldWorkflowID}" --recursive
-              aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-cloudfront-${OldWorkflowID}
-              aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name "${ENVIRONMENT_NAME}-frontend-${OldWorkflowID}"
-              aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-mgt-${OldWorkflowID}
-              aws cloudformation wait stack-delete-complete --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-mgt-${OldWorkflowID}
-              aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-nodegroup-${OldWorkflowID}
-              aws cloudformation wait stack-delete-complete --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-nodegroup-${OldWorkflowID}
-              aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-cluster-${OldWorkflowID}
-              aws cloudformation wait stack-delete-complete --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-cluster-${OldWorkflowID}
-              aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-network-${OldWorkflowID}
-              aws cloudformation wait stack-delete-complete --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-network-${OldWorkflowID}
-            fi
-      - run: yum -y install tar gzip
-      - destroy-environment:
-          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
+  
   configure-cluster:
     docker:
       - image: python:3.7-alpine3.11
@@ -402,10 +282,10 @@ jobs:
             if grep -q "No changes to deploy" outputs/check-deployed.txt
               then
                 cat ansible/inventory.txt
-                echo "Our management instances are already configured."
+                echo "Our instances are already configured."
               else
                 cat ansible/inventory.txt
-                ansible-playbook -i ansible/inventory.txt ansible/configure-cluster.yml
+                ansible-playbook -i ansible/inventory.txt ansible/configure-eks-cluster.yml
               fi
       - run:
           name: Wait for LoadBalancer's domain to become reachable
@@ -414,7 +294,7 @@ jobs:
             if grep -q "No changes to deploy" outputs/check-deployed.txt
               then
                 cat ansible/inventory.txt
-                echo "Our management instances are already configured."
+                echo "Our instances are already configured."
               else
                 cat ansible/inventory.txt
                 echo "Wait 60 seconds..."
@@ -458,6 +338,67 @@ jobs:
           no_output_timeout: 10m
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
+  smoke-test:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update curl nodejs npm ansible zip
+            pip install awscli
+      - run:
+          name: Frontend smoke test.
+          command: |
+            URL="http://${ENVIRONMENT_NAME}-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com"            
+            echo ${URL} 
+            if curl --output /dev/null --silent --head --fail ${URL}
+            then
+              echo "Smoke test passed"
+              return 0
+            else
+              echo "Smoke test failed"
+              return 1
+            fi
+      - destroy-environment:
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
+
+  cleanup:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Get old stack workflow id
+          command: |
+            export OldWorkflowID=$(aws cloudformation \
+                    list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
+                    --no-paginate --output text)
+            echo OldWorkflowID: "${OldWorkflowID}"
+            echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
+            # Fetch the stack names          
+            export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
+                    --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
+            echo Stack names: "${STACKS[@]}"
+            if [[ "${CIRCLE_WORKFLOW_ID:0:7}" != "${OldWorkflowID}" ]]
+            then
+              echo "Remove old stacks and files: ${OldWorkflowID} "
+              aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-ec2-${OldWorkflowID}
+              aws cloudformation wait stack-delete-complete --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-ec2-${OldWorkflowID}
+              aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-nodegroup-${OldWorkflowID}
+              aws cloudformation wait stack-delete-complete --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-nodegroup-${OldWorkflowID}
+              aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-cluster-${OldWorkflowID}
+              aws cloudformation wait stack-delete-complete --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-cluster-${OldWorkflowID}
+              aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-network-${OldWorkflowID}
+              aws cloudformation wait stack-delete-complete --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-network-${OldWorkflowID}
+            fi
+      - run: yum -y install tar gzip
+      - destroy-environment:
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
+  
 workflows:
   default:
     jobs:
@@ -493,23 +434,13 @@ workflows:
           filters:
             branches:
               only: [main]
-      - deploy-frontend:
-          requires: [deploy-docker]
-          filters:
-            branches:
-              only: [main]
-      - smoke-test:
-          requires: [deploy-frontend]
-          filters:
-            branches:
-              only: [main]
-      - cloudfront-update:
-          requires: [smoke-test]
-          filters:
-            branches:
-              only: [main]
+      # - smoke-test:
+      #     requires: [deploy-frontend]
+      #     filters:
+      #       branches:
+      #         only: [main]
       - cleanup:
-          requires: [cloudfront-update]
+          requires: [deploy-docker]
           filters:
             branches:
               only: [main]
