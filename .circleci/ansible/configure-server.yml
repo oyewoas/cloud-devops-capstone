@@ -5,6 +5,22 @@
   gather_facts: false
   become: yes
   pre_tasks:
+    - name: Add SSH host key to known_hosts
+      known_hosts:
+        name: "{{ inventory_hostname }}"
+        key: "{{ hostvars[inventory_hostname]['ansible_ssh_host_key'] }}"
+    - name: "update apt packages."
+      apt:
+        update_cache: yes
+
+    - name: "upgrade packages"
+      apt:
+        upgrade: yes
+
+    - name: remove stale dependencies
+      apt:
+        autoremove: yes
+
     - name: "install node 13.X"
       shell: |
         curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash -
@@ -16,6 +32,14 @@
         name: [ "zip", "unzip" ]
         state: latest
         update_cache: yes
+        
+    - name: "install pm2 by npm"
+      become: true
+      npm:
+        name: pm2
+        global: yes
+        production: yes
+        state: present
 
   roles:
     - install-kubectl
