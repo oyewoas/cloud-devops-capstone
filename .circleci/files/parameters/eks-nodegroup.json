@@ -17,6 +17,6 @@
   },
   {
     "ParameterKey": "KeyPairName",
-    "ParameterValue": "mykeypair"
+    "ParameterValue": "udacity"
   }
 ]

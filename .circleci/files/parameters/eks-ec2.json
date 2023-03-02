@@ -5,7 +5,7 @@
   },
   {
     "ParameterKey": "SSHKeyName",
-    "ParameterValue": "mykeypair"
+    "ParameterValue": "udacity"
   },
   {
     "ParameterKey": "amiImageId",

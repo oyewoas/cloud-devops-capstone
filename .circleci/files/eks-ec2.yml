@@ -10,7 +10,7 @@ Parameters:
     Type: String
   SSHKeyName:
     Description: SSH key for instance access
-    Default: mykeypair
+    Default: udacity
     Type: String
   amiImageId:
     Description: Defines the Image-ID of the OS to deploy
