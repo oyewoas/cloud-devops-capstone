@@ -2,13 +2,13 @@
 - name: "Install dependencies"
   hosts: all
   user: ubuntu
-  gather_facts: false
+  gather_facts: yes
   become: yes
   pre_tasks:
     - name: Add SSH host key to known_hosts
-      known_hosts:
+       known_hosts:
         name: "{{ inventory_hostname }}"
-        key: "{{ hostvars[inventory_hostname]['ansible_ssh_host_key'] }}"
+        key: "{{ hostvars[inventory_hostname]['ansible_host_key'][0]['key'] }}"
     - name: "update apt packages."
       apt:
         update_cache: yes
