@@ -16,13 +16,12 @@ Parameters:
     Description: Defines the Image-ID of the OS to deploy
     Default: ami-0dfcb1ef8550277af
     Type: String
-
 Resources:
   InstanceSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupName: !Sub ${EnvironmentName}-SG-${WorkflowID}
-      GroupDescription: Allow port 22 80 443 for instance
+      GroupDescription: Allow port 22 80 for instance
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 22
@@ -31,10 +30,6 @@ Resources:
         - IpProtocol: tcp
           FromPort: 80
           ToPort: 80
-          CidrIp: 0.0.0.0/0
-        - IpProtocol: tcp
-          FromPort: 443
-          ToPort: 443
           CidrIp: 0.0.0.0/0
 
   EC2Instance:

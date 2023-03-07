@@ -1,9 +1,9 @@
 ---
 - name: "Persist LoadBalancer's DNS name locally"
-  hosts: all
+  hosts: web
   user: ubuntu
   gather_facts: false
-  environment:
+  vars:
     ENVIRONMENT_NAME: "{{ lookup('env', 'ENVIRONMENT_NAME') }}"
   tasks:
     - name: Get the LoadBalancer's DNS name
