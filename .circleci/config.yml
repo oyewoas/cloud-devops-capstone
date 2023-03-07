@@ -180,7 +180,6 @@ jobs:
               --region ${AWS_DEFAULT_REGION} \
               --parameter-overrides file://.circleci/files/parameters/eks-cluster.json \
               --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
-              --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM
           no_output_timeout: 15m
       - run:
           name: Ensure Nodegroup exists
@@ -192,7 +191,6 @@ jobs:
               --region ${AWS_DEFAULT_REGION} \
               --parameter-overrides file://.circleci/files/parameters/eks-nodegroup.json \
               --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
-              --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM
       - run:
           name: Ensure eks instances exists
 
