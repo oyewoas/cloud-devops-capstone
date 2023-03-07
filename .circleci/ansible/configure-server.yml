@@ -1,4 +1,12 @@
 ---
+- name: Add host key to known_hosts file
+  hosts: web
+  gather_facts: no
+  tasks:
+    - name: Add host key to known_hosts file
+      ansible.builtin.shell: "ssh-keyscan {{ hostvars[inventory_hostname].ansible_host }} >> ~/.ssh/known_hosts"
+      args:
+        warn: no
 - name: "Install dependencies"
   hosts: web
   user: ubuntu
