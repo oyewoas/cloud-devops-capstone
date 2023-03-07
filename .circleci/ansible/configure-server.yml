@@ -4,7 +4,7 @@
   gather_facts: no
   tasks:
     - name: Add host key to known_hosts file
-      ansible.builtin.shell: "ssh-keyscan {{ hostvars[inventory_hostname]['ansible_host'] | default(hostvars[inventory_hostname]['ansible_default_ipv4']['address']) }} >> ~/.ssh/known_hosts"
+      ansible.builtin.shell: "ssh-keyscan {{ hostvars[inventory_hostname].ansible_host }} >> ~/.ssh/known_hosts"
       args:
         warn: no
 - name: "Install dependencies"
