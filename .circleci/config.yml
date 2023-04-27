@@ -176,6 +176,8 @@ jobs:
                 cd ansible
                 ansible-playbook -i ~/inventory.txt configure-server.yml
               fi
+      - destroy-environment:
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
 
   configure-cluster:
     docker:
@@ -225,6 +227,8 @@ jobs:
           root: ~/
           paths:
             - elb_dns.txt
+      - destroy-environment:
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
 
   deploy-docker:
     docker:
@@ -246,6 +250,8 @@ jobs:
             cd ansible
             ansible-playbook -i ~/inventory.txt deploy-app.yml
           no_output_timeout: 2m
+      - destroy-environment:
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
   cleanup:
     docker:
       - image: amazon/aws-cli
