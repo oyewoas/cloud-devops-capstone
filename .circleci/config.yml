@@ -94,7 +94,7 @@ jobs:
             aws cloudformation deploy \
               --template-file cloudformation/network.yml \
               --tags project=${ENVIRONMENT_NAME}-project \
-              --stack-name "${ENVIRONMENT_NAME}-eks-network" \
+              --stack-name "${ENVIRONMENT_NAME}-eks-network-${CIRCLE_WORKFLOW_ID:0:7}" \
               --region ${AWS_DEFAULT_REGION} \
               --parameter-overrides file://cloudformation/parameters/network.json\
               --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}"
@@ -104,7 +104,7 @@ jobs:
             aws cloudformation deploy \
               --template-file cloudformation/cluster.yml \
               --tags project=${ENVIRONMENT_NAME}-project \
-              --stack-name "${ENVIRONMENT_NAME}-eks-cluster" \
+              --stack-name "${ENVIRONMENT_NAME}-eks-cluster-${CIRCLE_WORKFLOW_ID:0:7}" \
               --region ${AWS_DEFAULT_REGION} \
               --parameter-overrides file://cloudformation/parameters/cluster.json \
               --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
@@ -116,7 +116,7 @@ jobs:
             aws cloudformation deploy \
               --template-file cloudformation/nodegroup.yml \
               --tags project=${ENVIRONMENT_NAME}-project \
-              --stack-name "${ENVIRONMENT_NAME}-eks-nodegroup" \
+              --stack-name "${ENVIRONMENT_NAME}-eks-nodegroup-${CIRCLE_WORKFLOW_ID:0:7}" \
               --region ${AWS_DEFAULT_REGION} \
               --parameter-overrides file://cloudformation/parameters/nodegroup.json \
               --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
@@ -127,7 +127,7 @@ jobs:
             aws cloudformation deploy \
               --template-file cloudformation/mgt.yml \
               --tags project=${ENVIRONMENT_NAME}-project \
-              --stack-name "${ENVIRONMENT_NAME}-eks-mgt" \
+              --stack-name "${ENVIRONMENT_NAME}-eks-mgt-${CIRCLE_WORKFLOW_ID:0:7}" \
               --region ${AWS_DEFAULT_REGION} \
               --parameter-overrides file://cloudformation/parameters/mgt.json \
               --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
