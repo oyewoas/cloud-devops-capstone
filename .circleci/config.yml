@@ -178,6 +178,8 @@ jobs:
                 cd ansible
                 ansible-playbook -i ~/inventory.txt configure-server.yml
               fi
+          environment:
+            ANSIBLE_CONFIG: .circleci/ansible/ansible.cfg
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
 
@@ -208,6 +210,8 @@ jobs:
                 cd ansible
                 ansible-playbook -i ~/inventory.txt configure-cluster.yml
               fi
+          environment:
+            ANSIBLE_CONFIG: .circleci/ansible/ansible.cfg
       - run:
           name: Wait for LoadBalancer's domain to become reachable
           command: |
@@ -227,6 +231,8 @@ jobs:
             cd ansible
             ansible-playbook -i ~/inventory.txt save-elb-dns.yml
             cat ~/elb_dns.txt
+          environment:
+            ANSIBLE_CONFIG: .circleci/ansible/ansible.cfg
       - persist_to_workspace:
           root: ~/
           paths:
@@ -255,6 +261,8 @@ jobs:
             cat ~/inventory.txt
             cd ansible
             ansible-playbook -i ~/inventory.txt deploy-app.yml
+          environment:
+            ANSIBLE_CONFIG: .circleci/ansible/ansible.cfg
           no_output_timeout: 2m
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
