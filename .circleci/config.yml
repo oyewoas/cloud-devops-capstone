@@ -7,8 +7,6 @@ commands:
       workflow_id:
         type: string
     steps:
-      - check-stack-status:
-          workflow_id: <<parameters.workflow_id>>
       - run:
           name: Destroy environments
           when: on_fail
