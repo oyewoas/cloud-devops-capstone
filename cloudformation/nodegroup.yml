@@ -75,6 +75,8 @@ Resources:
           - ","
           - Fn::ImportValue:
               Fn::Sub: ${EnvironmentName}-PUB-NETS-${WorkflowID}
+      KeyName: !Ref KeyPairName
+
 
 Outputs:
   NodeInstanceRole:
