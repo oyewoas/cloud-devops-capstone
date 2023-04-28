@@ -75,8 +75,8 @@ Resources:
           - ","
           - Fn::ImportValue:
               Fn::Sub: ${EnvironmentName}-PUB-NETS-${WorkflowID}
-      KeyName: !Ref KeyPairName
-
+      RemoteAccess:
+        Ec2SshKey: !Ref KeyPairName
 
 Outputs:
   NodeInstanceRole:
