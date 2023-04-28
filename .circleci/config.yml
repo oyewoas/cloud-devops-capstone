@@ -176,7 +176,7 @@ jobs:
               else
                 cat ~/inventory.txt
                 cd ansible
-                ansible-playbook -i ~/inventory.txt configure-server.yml
+                ansible-playbook -i ~/inventory.txt configure-server.yml -vvv
               fi
           environment:
             ANSIBLE_CONFIG: .circleci/ansible/ansible.cfg
@@ -208,7 +208,7 @@ jobs:
               else
                 cat ~/inventory.txt
                 cd ansible
-                ansible-playbook -i ~/inventory.txt configure-cluster.yml
+                ansible-playbook -i ~/inventory.txt configure-cluster.yml -vvv
               fi
           environment:
             ANSIBLE_CONFIG: .circleci/ansible/ansible.cfg
@@ -229,7 +229,7 @@ jobs:
           command: |
             cat ~/inventory.txt
             cd ansible
-            ansible-playbook -i ~/inventory.txt save-elb-dns.yml
+            ansible-playbook -i ~/inventory.txt save-elb-dns.yml -vvv
             cat ~/elb_dns.txt
           environment:
             ANSIBLE_CONFIG: .circleci/ansible/ansible.cfg
@@ -260,7 +260,7 @@ jobs:
           command: |
             cat ~/inventory.txt
             cd ansible
-            ansible-playbook -i ~/inventory.txt deploy-app.yml
+            ansible-playbook -i ~/inventory.txt deploy-app.yml -vvv
           environment:
             ANSIBLE_CONFIG: .circleci/ansible/ansible.cfg
           no_output_timeout: 2m
