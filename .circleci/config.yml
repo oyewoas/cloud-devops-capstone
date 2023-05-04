@@ -164,7 +164,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update curl  ansible zip
+            apk add --update curl ansible zip unzip
             pip install awscli
       - run:
           name: Configure server
@@ -196,7 +196,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update curl  ansible zip
+            apk add --update curl ansible zip unzip
             pip install awscli
       - run:
           name: Configure server
@@ -253,7 +253,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update curl  ansible zip
+            apk add --update curl ansible zip unzip
             pip install awscli
       - run:
           name: Deploy newest Docker Image
