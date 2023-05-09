@@ -130,9 +130,7 @@ jobs:
               --stack-name "${ENVIRONMENT_NAME}-eks-mgt-${CIRCLE_WORKFLOW_ID:0:7}" \
               --region ${AWS_DEFAULT_REGION} \
               --parameter-overrides file://cloudformation/parameters/mgt.json \
-              --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
-              --output text >> outputs/check_deployed.txt
-            cat outputs/check_deployed.txt
+              --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}"
       - run:
           name: Extract the IPs of the instances for Ansible
           command: |
@@ -145,7 +143,6 @@ jobs:
       - persist_to_workspace:
           root: ~/
           paths:
-            - project/outputs/check_deployed.txt
             - project/ansible/inventory.txt
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
@@ -167,15 +164,9 @@ jobs:
       - run:
           name: Configure server
           command: |
-            if grep -q "No changes to deploy" ~/outputs/check_deployed.txt
-              then
-                cat ~/ansible/inventory.txt
-                echo "Our instances are already configured."
-              else
-                cd ansible
-                cat inventory.txt
-                ansible-playbook -i inventory.txt configure-server.yml -vvv
-              fi
+            cd ansible
+            cat inventory.txt
+            ansible-playbook -i inventory.txt configure-server.yml -vvv
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
 
@@ -194,29 +185,16 @@ jobs:
             apk add --update curl ansible zip unzip
             pip install awscli
       - run:
-          name: Configure server
+          name: Configure cluster
           command: |
-            if grep -q "No changes to deploy" ~/outputs/check_deployed.txt
-              then
-                cat ~/ansible/inventory.txt
-                echo "Our instances are already configured."
-              else
-                cd ansible
-                cat inventory.txt
-                ansible-playbook -i inventory.txt configure-cluster.yml -vvv
-              fi
+            cd ansible
+            cat inventory.txt
+            ansible-playbook -i inventory.txt configure-cluster.yml -vvv
       - run:
           name: Wait for LoadBalancer's domain to become reachable
           command: |
-            if grep -q "No changes to deploy" ~/outputs/check_deployed.txt
-              then
-                cat ~/ansible/inventory.txt
-                echo "Our instances are already configured."
-              else
-                cat ~/ansible/inventory.txt
-                echo "Wait 60 seconds..."
-                sleep 60
-              fi
+            echo "Wait 60 seconds..."
+            sleep 60
       - run:
           name: Display the LoadBalancer's DNS name
           command: |
