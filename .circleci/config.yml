@@ -23,7 +23,7 @@ commands:
 jobs:
   test-build:
     docker:
-      - image: python:3.7.3-stretch
+      - image: python:3.8-alpine3.14
 
     steps:
       - checkout
@@ -152,7 +152,7 @@ jobs:
 
   configure-infrastructure:
     docker:
-      - image: python:3.7-alpine3.11
+      - image: python:3.8-alpine3.14
     steps:
       - checkout
       - attach_workspace:
@@ -181,7 +181,7 @@ jobs:
 
   configure-cluster:
     docker:
-      - image: python:3.7-alpine3.11
+      - image: python:3.8-alpine3.14
     steps:
       - checkout
       - attach_workspace:
@@ -233,7 +233,7 @@ jobs:
 
   deploy-docker:
     docker:
-      - image: python:3.7-alpine3.11
+      - image: python:3.8-alpine3.14
     steps:
       - checkout
       - attach_workspace:
