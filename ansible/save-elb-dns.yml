@@ -1,6 +1,6 @@
 ---
 - name: "Save LoadBalancer's DNS name locally"
-  hosts: web
+  hosts: all
   user: ubuntu
   gather_facts: false
   vars:

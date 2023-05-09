@@ -1,6 +1,6 @@
 ---
 - name: "Install dependencies"
-  hosts: web
+  hosts: all
   user: ubuntu
   become: true
   become_method: sudo
@@ -26,7 +26,7 @@
     - install-kubectl
 
 - name: "Authenticate AWS CLI with AWS"
-  hosts: web
+  hosts: all
   user: ubuntu
   gather_facts: false
   vars:
@@ -45,7 +45,7 @@
       shell: "aws configure set default.region {{ AWS_DEFAULT_REGION }}"
 
 - name: "Fetch kubectl config"
-  hosts: web
+  hosts: all
   user: ubuntu
   gather_facts: false
   vars:

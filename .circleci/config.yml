@@ -86,9 +86,6 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install dependencies
-          command: yum install -y tar gzip
-      - run:
           name: Ensure EKS network exists
           command: |
             aws cloudformation deploy \
@@ -134,12 +131,19 @@ jobs:
       - run:
           name: Extract the IPs of the instances for Ansible
           command: |
-            aws ec2 describe-instances \
+          AWS_INSTANCE_PUBLIC_IP=$(aws ec2 describe-instances \
               --region "${AWS_DEFAULT_REGION}" \
-              --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:Name,Values=${ENVIRONMENT_NAME}-mgt*" \
-              --output text >> ansible/inventory.txt
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --output text)
+            echo "AWS_INSTANCE_PUBLIC_IP = ${AWS_INSTANCE_PUBLIC_IP}"
+            echo "[all]" >> ansible/inventory.txt
+            echo "$AWS_INSTANCE_PUBLIC_IP" >> ansible/inventory.txt
+
             cat ansible/inventory.txt
+      - run:
+          name: Install dependencies
+          command: yum install -y tar gzip
       - persist_to_workspace:
           root: ~/
           paths:
