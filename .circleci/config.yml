@@ -131,7 +131,7 @@ jobs:
       - run:
           name: Extract the IPs of the instances for Ansible
           command: |
-          AWS_INSTANCE_PUBLIC_IP=$(aws ec2 describe-instances \
+            AWS_INSTANCE_PUBLIC_IP=$(aws ec2 describe-instances \
               --region "${AWS_DEFAULT_REGION}" \
               --filters "Name=tag:Name,Values=${ENVIRONMENT_NAME}-mgt*" \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
