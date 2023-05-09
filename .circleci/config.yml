@@ -131,23 +131,22 @@ jobs:
               --region ${AWS_DEFAULT_REGION} \
               --parameter-overrides file://cloudformation/parameters/mgt.json \
               --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
-              --output text >> ~/checkDeployed.txt
-            cat ~/checkDeployed.txt
+              --output text >> outputs/check_deployed.txt
+            cat outputs/check_deployed.txt
       - run:
           name: Extract the IPs of the instances for Ansible
           command: |
-            echo [web] > ~/inventory.txt
             aws ec2 describe-instances \
               --region "${AWS_DEFAULT_REGION}" \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:Name,Values=${ENVIRONMENT_NAME}-mgt*" \
-              --output text >> ~/inventory.txt
-            cat ~/inventory.txt
+              --output text >> ansible/inventory.txt
+            cat ansible/inventory.txt
       - persist_to_workspace:
           root: ~/
           paths:
-            - inventory.txt
-            - checkDeployed.txt
+            - project/outputs/check_deployed.txt
+            - project/ansible/inventory.txt
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
 
@@ -156,11 +155,10 @@ jobs:
       - image: python:3.7-alpine3.11
     steps:
       - checkout
-      - add_ssh_keys:
-          fingerprints: 
-            - "b2:37:70:80:0e:60:3f:59:31:ba:80:46:dd:3f:a6:d9"
       - attach_workspace:
           at: ~/
+      - add_ssh_keys:
+          fingerprints: ["b2:37:70:80:0e:60:3f:59:31:ba:80:46:dd:3f:a6:d9"]
       - run:
           name: Install dependencies
           command: |
@@ -169,14 +167,14 @@ jobs:
       - run:
           name: Configure server
           command: |
-            if grep -q "No changes to deploy" ~/checkDeployed.txt
+            if grep -q "No changes to deploy" ~/outputs/check_deployed.txt
               then
-                cat ~/inventory.txt
+                cat ~/ansible/inventory.txt
                 echo "Our instances are already configured."
               else
-                cat ~/inventory.txt
                 cd ansible
-                ansible-playbook -i ~/inventory.txt configure-server.yml -vvv
+                cat inventory.txt
+                ansible-playbook -i inventory.txt configure-server.yml -vvv
               fi
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
@@ -186,11 +184,10 @@ jobs:
       - image: python:3.7-alpine3.11
     steps:
       - checkout
-      - add_ssh_keys:
-          fingerprints: 
-            - "b2:37:70:80:0e:60:3f:59:31:ba:80:46:dd:3f:a6:d9"
       - attach_workspace:
           at: ~/
+      - add_ssh_keys:
+          fingerprints: ["b2:37:70:80:0e:60:3f:59:31:ba:80:46:dd:3f:a6:d9"]
       - run:
           name: Install dependencies
           command: |
@@ -199,38 +196,38 @@ jobs:
       - run:
           name: Configure server
           command: |
-            if grep -q "No changes to deploy" ~/checkDeployed.txt
+            if grep -q "No changes to deploy" ~/outputs/check_deployed.txt
               then
-                cat ~/inventory.txt
+                cat ~/ansible/inventory.txt
                 echo "Our instances are already configured."
               else
-                cat ~/inventory.txt
                 cd ansible
-                ansible-playbook -i ~/inventory.txt configure-cluster.yml -vvv
+                cat inventory.txt
+                ansible-playbook -i inventory.txt configure-cluster.yml -vvv
               fi
       - run:
           name: Wait for LoadBalancer's domain to become reachable
           command: |
-            if grep -q "No changes to deploy" ~/checkDeployed.txt
+            if grep -q "No changes to deploy" ~/outputs/check_deployed.txt
               then
-                cat ~/inventory.txt
+                cat ~/ansible/inventory.txt
                 echo "Our instances are already configured."
               else
-                cat ~/inventory.txt
+                cat ~/ansible/inventory.txt
                 echo "Wait 60 seconds..."
                 sleep 60
               fi
       - run:
           name: Display the LoadBalancer's DNS name
           command: |
-            cat ~/inventory.txt
             cd ansible
-            ansible-playbook -i ~/inventory.txt save-elb-dns.yml -vvv
-            cat ~/elb_dns.txt
+            cat inventory.txt
+            ansible-playbook -i inventory.txt save-elb-dns.yml -vvv
+            cat ~/outputs/elb_dns.txt
       - persist_to_workspace:
           root: ~/
           paths:
-            - elb_dns.txt
+            - project/outputs/elb_dns.txt
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
 
@@ -239,11 +236,10 @@ jobs:
       - image: python:3.7-alpine3.11
     steps:
       - checkout
-      - add_ssh_keys:
-          fingerprints: 
-            - "b2:37:70:80:0e:60:3f:59:31:ba:80:46:dd:3f:a6:d9"
       - attach_workspace:
           at: ~/
+      - add_ssh_keys:
+          fingerprints: ["b2:37:70:80:0e:60:3f:59:31:ba:80:46:dd:3f:a6:d9"]
       - run:
           name: Install dependencies
           command: |
@@ -252,9 +248,9 @@ jobs:
       - run:
           name: Deploy newest Docker Image
           command: |
-            cat ~/inventory.txt
             cd ansible
-            ansible-playbook -i ~/inventory.txt deploy-app.yml -vvv
+            cat inventory.txt
+            ansible-playbook -i inventory.txt deploy-app.yml -vvv
           no_output_timeout: 2m
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
