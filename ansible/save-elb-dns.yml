@@ -1,6 +1,9 @@
 - name: Save LoadBalancer's DNS name locally
   hosts: all
   user: ubuntu
+  become: true
+  become_method: sudo
+  become_user: root
   gather_facts: false
   vars:
     - ansible_python_interpreter: /usr/bin/python3
@@ -13,7 +16,7 @@
       shell: "{{ kubectl_path }} get svc {{ ENVIRONMENT_NAME }}-service"
       register: elb_dns
       args:
-        chdir: $HOME
+        chdir: "{{ ansible_env.HOME }}"
 
     - name: Copy the output to a local file
       copy:
