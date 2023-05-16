@@ -20,6 +20,7 @@ commands:
             aws cloudformation wait stack-delete-complete --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-cluster-<<parameters.workflow_id>>
             aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-network-<<parameters.workflow_id>>
             aws cloudformation wait stack-delete-complete --region ${AWS_DEFAULT_REGION} --stack-name ${ENVIRONMENT_NAME}-eks-network-<<parameters.workflow_id>>
+          no_output_timeout: 30m
 jobs:
   test-build:
     docker:
