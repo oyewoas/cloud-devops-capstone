@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
         - name: capstone-project-app
-          image: oyewoas/capstone-project
+          image: oyewoas/capstone-project:${CIRCLE_BUILD_NUM|slice:"0:7"}
           ports:
             - containerPort: 80
