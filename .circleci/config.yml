@@ -162,6 +162,9 @@ jobs:
           name: Install dependencies
           command: |
             apk add --update curl ansible zip unzip
+            python3 -m venv venv
+            source venv/bin/activate
+            pip install --upgrade pip
             pip install awscli
       - run:
           name: Configure server
@@ -185,6 +188,9 @@ jobs:
           name: Install dependencies
           command: |
             apk add --update curl ansible zip unzip
+            python3 -m venv venv
+            source venv/bin/activate
+            pip install --upgrade pip
             pip install awscli
       - run:
           name: Configure cluster
@@ -224,6 +230,9 @@ jobs:
           name: Install dependencies
           command: |
             apk add --update curl ansible zip unzip
+            python3 -m venv venv
+            source venv/bin/activate
+            pip install --upgrade pip
             pip install awscli
       - run:
           name: Deploy newest Docker Image
