@@ -18,3 +18,12 @@
   shell: echo 'export PATH=$PATH:$HOME/bin' >> .bashrc
   args:
     chdir: $HOME
+
+- name: "Check kubectl version"
+  command: kubectl version --client
+  register: kubectl_version_output
+  changed_when: false
+
+- name: "Display kubectl version"
+  debug:
+    var: kubectl_version_output.stdout_lines
