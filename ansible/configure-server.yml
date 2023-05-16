@@ -20,6 +20,11 @@
       raw: test -e /usr/bin/python3 || (apt -y update && apt install -y python-minimal)
       changed_when: True
       # Your code here
+    - name: "Install 'unzip'"
+      apt:
+        name: [ "unzip" ]
+        state: latest
+        update_cache: yes
 
   roles:
     - install-awscli
