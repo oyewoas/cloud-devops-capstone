@@ -1,9 +1,9 @@
 - name: Copy service configuration
   copy:
     src: "{{ ENVIRONMENT_NAME }}-service.yaml"
-    dest: "{{ ansible_env.HOME }}"
+    dest: $HOME
 
 - name: Create service configuration
-  shell: "{{ kubectl_path }} apply -f {{ ansible_env.HOME }}/{{ ENVIRONMENT_NAME }}-service.yaml"
+  shell: "{{ kubectl_path }} apply -f {{ ENVIRONMENT_NAME }}-service.yaml"
   args:
-    chdir: "{{ ansible_env.HOME }}"
+    chdir: $HOME

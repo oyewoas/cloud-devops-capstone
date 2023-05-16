@@ -14,9 +14,9 @@
     - name: Update the deployment to run the latest Build
       shell: "{{ kubectl_path }} set image deployments/{{ ENVIRONMENT_NAME }}-deployment {{ ENVIRONMENT_NAME }}-app=oyewoas/{{ ENVIRONMENT_NAME }}:{{ CIRCLE_WORKFLOW_ID_SHORT }}"
       args:
-        chdir: "{{ ansible_env.HOME }}"
+        chdir: $HOME
 
     - name: Check if deployment is successful
       shell: "{{ kubectl_path }} rollout status deployments/{{ ENVIRONMENT_NAME }}-deployment"
       args:
-        chdir: "{{ ansible_env.HOME }}"
+        chdir: $HOME

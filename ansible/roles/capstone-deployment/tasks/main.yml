@@ -1,9 +1,9 @@
 - name: Copy deployment configuration
   copy:
     src: "{{ ENVIRONMENT_NAME }}-deployment.yaml"
-    dest: "{{ ansible_env.HOME }}"
+    dest: $HOME
 
 - name: Execute kubectl apply
-  shell: "{{ kubectl_path }} apply -f {{ ansible_env.HOME }}/{{ ENVIRONMENT_NAME }}-deployment.yaml"
+  shell: "{{ kubectl_path }} apply -f {{ ENVIRONMENT_NAME }}-deployment.yaml"
   args:
-    chdir: "{{ ansible_env.HOME }}"
+    chdir: $HOME

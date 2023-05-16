@@ -9,13 +9,13 @@
 - name: Configure kubectl path
   become: true
   lineinfile:
-    path: "{{ ansible_env.HOME }}/.bashrc"
+    path: "$HOME/.bashrc"
     line: "export PATH=$PATH:/usr/local/bin"
     insertafter: EOF
     state: present
 
 - name: Source the bashrc file
-  shell: source "{{ ansible_env.HOME }}/.bashrc"
+  shell: source "$HOME/.bashrc"
   args:
     executable: /bin/bash
   changed_when: false
