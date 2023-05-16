@@ -6,16 +6,20 @@
     dest: "/usr/local/bin/kubectl"
     mode: "u+x"
 
+- name: Apply execute permissions to the binary
+  become: true
+  command: chmod +x /usr/local/bin/kubectl
+
 - name: Configure kubectl path
   become: true
   lineinfile:
-    path: "$HOME/.bashrc"
+    path: "/home/ubuntu/.bashrc"
     line: "export PATH=$PATH:/usr/local/bin"
     insertafter: EOF
     state: present
 
 - name: Source the bashrc file
-  shell: source "$HOME/.bashrc"
+  shell: source "/home/ubuntu/.bashrc"
   args:
     executable: /bin/bash
   changed_when: false
