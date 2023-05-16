@@ -1,15 +1,14 @@
----
-- name: "Download The AWS CLI Archive"
+- name: Download The AWS CLI Archive
   shell: curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
   args:
-    chdir: $HOME
+    chdir: "{{ ansible_env.HOME }}"
 
-- name: "Unzip the AWS CLI Archive"
+- name: Unzip the AWS CLI Archive
   shell: unzip awscliv2.zip
   args:
-    chdir: $HOME
+    chdir: "{{ ansible_env.HOME }}"
 
-- name: "Install the AWS CLI"
+- name: Install the AWS CLI
   shell: ./aws/install
   args:
-    chdir: $HOME
+    chdir: "{{ ansible_env.HOME }}"

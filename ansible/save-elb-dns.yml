@@ -1,5 +1,4 @@
----
-- name: "Save LoadBalancer's DNS name locally"
+- name: Save LoadBalancer's DNS name locally
   hosts: all
   user: ubuntu
   gather_facts: false
@@ -7,13 +6,14 @@
     - ansible_python_interpreter: /usr/bin/python3
     - ansible_host_key_checking: false
     - ansible_stdout_callback: yaml
+    - kubectl_path: /usr/local/bin/kubectl
     - ENVIRONMENT_NAME: "{{ lookup('env', 'ENVIRONMENT_NAME') }}"
   tasks:
     - name: Get the LoadBalancer's DNS name
-      shell: "./bin/kubectl get svc {{ ENVIRONMENT_NAME }}-service"
+      shell: "{{ kubectl_path }} get svc {{ ENVIRONMENT_NAME }}-service"
       register: elb_dns
       args:
-        chdir: $HOME
+        chdir: "{{ ansible_env.HOME }}"
 
     - name: Copy the output to a local file
       copy:

@@ -1,4 +1,4 @@
-- name: "Deploy latest app"
+- name: Deploy latest app
   hosts: all
   user: ubuntu
   gather_facts: false
@@ -6,16 +6,17 @@
     - ansible_python_interpreter: /usr/bin/python3
     - ansible_host_key_checking: false
     - ansible_stdout_callback: yaml
+    - kubectl_path: /usr/local/bin/kubectl
     - ENVIRONMENT_NAME: "{{ lookup('env', 'ENVIRONMENT_NAME') }}"
     - CIRCLE_WORKFLOW_ID: "{{ lookup('env', 'CIRCLE_WORKFLOW_ID') }}"
     - CIRCLE_WORKFLOW_ID_SHORT: "{{ CIRCLE_WORKFLOW_ID[:7] }}"
   tasks:
     - name: Update the deployment to run the latest Build
-      shell: "./bin/kubectl set image deployments/{{ ENVIRONMENT_NAME }}-deployment {{ ENVIRONMENT_NAME }}-app=oyewoas/{{ ENVIRONMENT_NAME }}:{{ CIRCLE_WORKFLOW_ID_SHORT }}"
+      shell: "{{ kubectl_path }} set image deployments/{{ ENVIRONMENT_NAME }}-deployment {{ ENVIRONMENT_NAME }}-app=oyewoas/{{ ENVIRONMENT_NAME }}:{{ CIRCLE_WORKFLOW_ID_SHORT }}"
       args:
-        chdir: $HOME
+        chdir: "{{ ansible_env.HOME }}"
 
-    - name: Check if deployment ist successful
-      shell: "./bin/kubectl rollout status deployments/{{ ENVIRONMENT_NAME }}-deployment"
+    - name: Check if deployment is successful
+      shell: "{{ kubectl_path }} rollout status deployments/{{ ENVIRONMENT_NAME }}-deployment"
       args:
-        chdir: $HOME
+        chdir: "{{ ansible_env.HOME }}"
