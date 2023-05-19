@@ -63,4 +63,4 @@
     - CIRCLE_WORKFLOW_ID_SHORT: "{{ CIRCLE_WORKFLOW_ID[:7] }}"
   pre_tasks:
     - name: Create a kubeconfig file for the cluster
-      shell: "aws eks update-kubeconfig --region {{ AWS_DEFAULT_REGION }} --name {{ ENVIRONMENT_NAME }}-EKSCluster-{{ CIRCLE_WORKFLOW_ID_SHORT }}"
+      shell: "aws eks update-kubeconfig --region {{ AWS_DEFAULT_REGION }} --name {{ ENVIRONMENT_NAME }}-cluster-{{ CIRCLE_WORKFLOW_ID_SHORT }}"
