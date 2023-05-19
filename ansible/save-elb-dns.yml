@@ -16,7 +16,7 @@
       shell: "{{ kubectl_path }} get svc {{ ENVIRONMENT_NAME }}-service"
       register: elb_dns
       args:
-        chdir: "{{ ansible_env.HOME }}"
+        chdir: "/home/ubuntu"
 
     - name: Copy the output to a local file
       copy:
