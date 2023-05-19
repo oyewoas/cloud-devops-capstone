@@ -22,7 +22,7 @@
       # Your code here
     - name: "Install 'unzip'"
       apt:
-        name: ["unzip"]
+        name: [ "unzip" ]
         state: latest
         update_cache: yes
 
@@ -62,13 +62,5 @@
     - CIRCLE_WORKFLOW_ID: "{{ lookup('env', 'CIRCLE_WORKFLOW_ID') }}"
     - CIRCLE_WORKFLOW_ID_SHORT: "{{ CIRCLE_WORKFLOW_ID[:7] }}"
   pre_tasks:
-    - name: Retrieve EKS cluster name
-      shell: "aws eks describe-cluster --region {{ AWS_DEFAULT_REGION }} --name {{ ENVIRONMENT_NAME }}-eks-cluster-{{ CIRCLE_WORKFLOW_ID_SHORT }} --query 'cluster.name' --output text"
-      register: cluster_info
-
-    - name: Extract cluster name from describe-cluster response
-      set_fact:
-        cluster_name: "{{ cluster_info.stdout }}"
-
     - name: Create a kubeconfig file for the cluster
-      shell: "aws eks update-kubeconfig --region {{ AWS_DEFAULT_REGION }} --name {{ cluster_name }}"
+      shell: "aws eks update-kubeconfig --region {{ AWS_DEFAULT_REGION }} --name {{ ENVIRONMENT_NAME }}-EKSCluster-{{ CIRCLE_WORKFLOW_ID_SHORT }}"
