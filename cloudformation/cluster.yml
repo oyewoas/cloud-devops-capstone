@@ -13,7 +13,7 @@ Resources:
   ClusterInstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
-      InstanceProfileName: !Sub ${EnvironmentName}-cluster-profile-${WorkflowID}
+      InstanceProfileName: ${EnvironmentName}-cluster-profile-${WorkflowID}
       Path: "/"
       Roles:
         - !Ref EKSClusterRole
@@ -21,7 +21,7 @@ Resources:
   EKSClusterRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Sub ${EnvironmentName}-cluster-role-${WorkflowID}
+      RoleName: ${EnvironmentName}-cluster-role-${WorkflowID}
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -41,7 +41,7 @@ Resources:
     Type: AWS::EKS::Cluster
     Properties:
       Version: "1.23"
-      Name: !Sub ${EnvironmentName}-cluster-${WorkflowID}
+      Name: ${EnvironmentName}-cluster-${WorkflowID}
       RoleArn: !GetAtt EKSClusterRole.Arn
       ResourcesVpcConfig:
         SecurityGroupIds:
