@@ -4,6 +4,6 @@
     dest: "/home/ubuntu"
 
 - name: Create service configuration
-  shell: "{{ kubectl_path }} apply -f {{ ENVIRONMENT_NAME }}-service.yaml"
+  shell: "{{ kubectl_path }} apply -f {{ ENVIRONMENT_NAME }}-service.yaml --kubeconfig=~/.kube/config"
   args:
     chdir: "/home/ubuntu"
