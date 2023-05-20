@@ -45,7 +45,6 @@ Code linting is employed to verify the syntactical correctness of the applicatio
 
 #### Output when the linting step fails:
 
-![Linting step fail](./capstone_shots/lint_failure.png)
 
 
 #### Output when the linting step passes:
