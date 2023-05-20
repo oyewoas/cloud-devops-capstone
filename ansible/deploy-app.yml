@@ -45,3 +45,5 @@
       shell: "{{ kubectl_path }} rollout status deployments/{{ ENVIRONMENT_NAME }}-deployment --kubeconfig=/home/ubuntu/.kube/config"
       args:
         chdir: "/home/ubuntu"
+      timeout: 600
+
