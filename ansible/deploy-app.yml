@@ -37,12 +37,12 @@
     - CIRCLE_WORKFLOW_ID_SHORT: "{{ CIRCLE_WORKFLOW_ID[:7] }}"
   tasks:
     - name: Update the deployment to run the latest Build
-      shell: "{{ kubectl_path }} set image deployment.apps/{{ ENVIRONMENT_NAME }}-deployment {{ ENVIRONMENT_NAME }}-app=oyewoas/{{ ENVIRONMENT_NAME }}:{{ CIRCLE_WORKFLOW_ID_SHORT }} --kubeconfig=/home/ubuntu/.kube/config"
+      shell: "{{ kubectl_path }} set image deployment/{{ ENVIRONMENT_NAME }}-deployment {{ ENVIRONMENT_NAME }}-app=oyewoas/{{ ENVIRONMENT_NAME }}:{{ CIRCLE_WORKFLOW_ID_SHORT }} --kubeconfig=/home/ubuntu/.kube/config"
       args:
         chdir: "/home/ubuntu"
 
     - name: Check if deployment is successful
-      shell: "{{ kubectl_path }} rollout status deployment.apps/{{ ENVIRONMENT_NAME }}-deployment --kubeconfig=/home/ubuntu/.kube/config"
+      shell: "{{ kubectl_path }} rollout status deployment/{{ ENVIRONMENT_NAME }}-deployment --kubeconfig=/home/ubuntu/.kube/config"
       args:
         chdir: "/home/ubuntu"
 
